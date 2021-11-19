@@ -1,1 +1,17 @@
 # Missing values
+
+```{r, read data}
+NY_Jan = read.csv("~/Desktop/NY_Jan.csv")
+```
+```{r}
+library(tidyverse)
+library(patchwork)
+missing_plot(NY_Jan, "percent")
+```
+
+
+Above is a plot of missing patterns and count of missing values. We can see that the variable `x` is missing in all rows, so we can remove it from our dataset. Further, more than 90% of data follows the top missing pattern as shown in the plot. The variables `CARRIER_DELAY`, `LATE_AIRCRAFT_DELAY`, `NAS_DELAY`, `SECURITY_DELAY` and `WEATHER_DELAY` are missing in this pattern, indicating that these flights did not delay. In the second most frequent missing pattern, these variables have non-NA values. It implies that the flight was delayed and the delay time due to these reasons are shown in the dataset.  
+
+The bottom three missing patterns are much less frequent than the other two. The missing values in `ARR_TIME`, `DEP_TIME` cause the missing in `ARR_DELAY` and `DEP_DELAY` respectively, and it may be caused by cancellation of flights.
+
+
