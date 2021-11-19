@@ -6,6 +6,7 @@ NY_Jan = read.csv("~/Desktop/NY_Jan.csv")
 ```{r}
 library(tidyverse)
 library(patchwork)
+source('missing_plot.R')
 missing_plot(NY_Jan, "percent")
 ```
 
