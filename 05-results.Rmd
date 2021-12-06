@@ -1,1 +1,81 @@
 # Results
+
+# 1. Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.
+
+```{r}
+library(ggplot2)
+data1 = filter(NY_Jan_cleaning, is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
+delayCount <- data1 %>%
+  count(data1$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
+delayCount$CARRIER_AIRLINE_ID <- format(delayCount$`data1$MKT_CARRIER_AIRLINE_ID`)
+delayCount <- delayCount %>% 
+  mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
+delayCount <- delayCount[, -1]
+ggplot(data = delayCount, mapping = aes(x = delayCount$CARRIER_AIRLINE_ID, y = delayCount$count)) +
+  geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
+  labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
+```
+
+The dataframe `NY_Jan_delayCount` shows the number of delays for each carrier within the January. We plot a simple bar graph to manifest the result more explicitly. Note that this figure only shows the number of times that the delay occurs, on the other side, we need to evaluate the averaged severity of the delays, i.e. the averaged time of the delays for each carrier.
+
+```{r}
+delayAverage <- data1
+delayAverage$delayTime <- rowSums(delayAverage[c(27:31)])
+delayAverage <- delayAverage %>%
+  group_by(delayAverage$MKT_CARRIER_AIRLINE_ID) %>%
+  summarise(delayMean = mean(delayTime))
+delayAverage$CARRIER_AIRLINE_ID <- format(delayAverage$`delayAverage$MKT_CARRIER_AIRLINE_ID`)
+delayAverage <- delayAverage %>% 
+  mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayMean)])))
+delayAverage <- delayAverage[, -1]
+ggplot(data = delayAverage, mapping = aes(x = delayAverage$CARRIER_AIRLINE_ID, y = delayAverage$delayMean)) +
+  geom_bar(stat = 'identity', fill = ifelse(delayAverage$delayMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
+  geom_text(aes(label=round(delayMean, 2)), position=position_dodge(width=0.9), vjust=-0.25) +
+  labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
+```
+
+Moreover, we hope to explore the results for concrete delay reasons, i.e. `CARRIER_DELAY`, `WEATHER_DELAY`, `NAS_DELAY`, `SECURITY_DELAY` and `LATE_AIRCRAFT_DELAY`, 
+
+```{r}
+library(tidyverse)
+library(gridExtra)
+library(patchwork)
+delayDetails <- data1
+setwd("~/Desktop")
+for (i in 1:5) {
+  delayDetail = filter(delayDetails, delayDetails[,(i+26)] != 0)
+  delayDetailCount <- delayDetail %>%
+    count(delayDetail$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
+  delayDetailCount$CARRIER_AIRLINE_ID <- format(delayDetailCount$`delayDetail$MKT_CARRIER_AIRLINE_ID`)
+  delayDetailCount <- delayDetailCount %>% 
+    mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
+  delayDetailCount <- delayDetailCount[, -1]
+  p1 <- ggplot(data = delayDetailCount, mapping = aes(x = delayDetailCount$CARRIER_AIRLINE_ID, y = delayDetailCount$count)) +
+    geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
+    labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
+  
+  delayDetailAverage <- delayDetail
+  delayDetailAverage$delayDetailCopy <- delayDetailAverage[,(i+26)]
+  delayDetailAverage <- delayDetailAverage %>%
+    group_by(delayDetailAverage$MKT_CARRIER_AIRLINE_ID) %>%
+    summarise(delayDetailMean = mean(delayDetailCopy))
+  delayDetailAverage$CARRIER_AIRLINE_ID <- format(delayDetailAverage$`delayDetailAverage$MKT_CARRIER_AIRLINE_ID`)
+  delayDetailAverage <- delayDetailAverage %>% 
+    mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayDetailMean)])))
+  delayDetailAverage <- delayDetailAverage[, -1]
+  p2 <- ggplot(data = delayDetailAverage, mapping = aes(x = delayDetailAverage$CARRIER_AIRLINE_ID, y = delayDetailAverage$delayDetailMean)) +
+    geom_bar(stat = 'identity', fill = ifelse(delayDetailAverage$delayDetailMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
+    geom_text(aes(label=round(delayDetailMean, 2)), position=position_dodge(width=0.6), vjust=-0.25) +
+    labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
+  
+  p1 + p2
+  filename <- paste(colnames(delayDetails)[(26+i)], ".pdf", sep = "")
+  ggsave(filename = filename)
+  
+}
+```
+
+
+
+
+

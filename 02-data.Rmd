@@ -1,2 +1,5 @@
 # Data sources
 
+```{r, read data}
+NY_Jan = read.csv("~/Desktop/NY_Jan.csv")
+```

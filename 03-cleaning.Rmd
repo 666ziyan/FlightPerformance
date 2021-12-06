@@ -1,1 +1,8 @@
 # Data transformation
+
+```{r}
+NY_Jan_cleaning <- NY_Jan[,-32]
+NY_Jan_cleaning = filter(NY_Jan_cleaning, is.na(NY_Jan_cleaning$AIR_TIME) == FALSE)
+```
+
+According to the result of missing pattern plotting, we would like to clean the worthless column `x`, and also those incomplete data points, which has some delay-irrelevant features being NA values.
