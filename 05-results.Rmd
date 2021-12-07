@@ -4,6 +4,7 @@
 
 ```{r}
 library(ggplot2)
+# library(dplyr)
 data1 = filter(NY_Jan_cleaning, is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
 delayCount <- data1 %>%
   count(data1$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
@@ -11,7 +12,8 @@ delayCount$CARRIER_AIRLINE_ID <- format(delayCount$`data1$MKT_CARRIER_AIRLINE_ID
 delayCount <- delayCount %>% 
   mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
 delayCount <- delayCount[, -1]
-ggplot(data = delayCount, mapping = aes(x = delayCount$CARRIER_AIRLINE_ID, y = delayCount$count)) +
+ggplot(data = delayCount, mapping = aes(x = CARRIER_AIRLINE_ID, 
+                                        y = count)) +
   geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
   labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
 ```
@@ -24,11 +26,14 @@ delayAverage$delayTime <- rowSums(delayAverage[c(27:31)])
 delayAverage <- delayAverage %>%
   group_by(delayAverage$MKT_CARRIER_AIRLINE_ID) %>%
   summarise(delayMean = mean(delayTime))
+
 delayAverage$CARRIER_AIRLINE_ID <- format(delayAverage$`delayAverage$MKT_CARRIER_AIRLINE_ID`)
+
 delayAverage <- delayAverage %>% 
   mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayMean)])))
 delayAverage <- delayAverage[, -1]
-ggplot(data = delayAverage, mapping = aes(x = delayAverage$CARRIER_AIRLINE_ID, y = delayAverage$delayMean)) +
+
+ggplot(data = delayAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayMean)) +
   geom_bar(stat = 'identity', fill = ifelse(delayAverage$delayMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
   geom_text(aes(label=round(delayMean, 2)), position=position_dodge(width=0.9), vjust=-0.25) +
   labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
@@ -50,7 +55,7 @@ for (i in 1:5) {
   delayDetailCount <- delayDetailCount %>% 
     mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
   delayDetailCount <- delayDetailCount[, -1]
-  p1 <- ggplot(data = delayDetailCount, mapping = aes(x = delayDetailCount$CARRIER_AIRLINE_ID, y = delayDetailCount$count)) +
+  p1 <- ggplot(data = delayDetailCount, mapping = aes(x = CARRIER_AIRLINE_ID, y = count)) +
     geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
     labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
   
@@ -63,16 +68,22 @@ for (i in 1:5) {
   delayDetailAverage <- delayDetailAverage %>% 
     mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayDetailMean)])))
   delayDetailAverage <- delayDetailAverage[, -1]
-  p2 <- ggplot(data = delayDetailAverage, mapping = aes(x = delayDetailAverage$CARRIER_AIRLINE_ID, y = delayDetailAverage$delayDetailMean)) +
+  p2 <- ggplot(data = delayDetailAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayDetailMean)) +
     geom_bar(stat = 'identity', fill = ifelse(delayDetailAverage$delayDetailMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
     geom_text(aes(label=round(delayDetailMean, 2)), position=position_dodge(width=0.6), vjust=-0.25) +
     labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
+  if (i == 1) {
+    p <- p1 + p2
+  }
+  else{
+    p<- p+p1+p2
+  }
   
-  p1 + p2
-  filename <- paste(colnames(delayDetails)[(26+i)], ".pdf", sep = "")
-  ggsave(filename = filename)
+  # filename <- paste(colnames(delayDetails)[(26+i)], ".pdf", sep = "")
+  # ggsave(filename = filename)
   
 }
+p
 ```
 
 

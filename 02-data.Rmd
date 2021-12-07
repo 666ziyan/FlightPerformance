@@ -2,4 +2,50 @@
 
 ```{r, read data}
 NY_Jan = read.csv("~/Desktop/NY_Jan.csv")
+
+f1901 <- read.csv('./datasets/2019_01.csv')
+f1902 <- read.csv('./datasets/2019_02.csv')
+f1903 <- read.csv('./datasets/2019_03.csv')
+f1904 <- read.csv('./datasets/2019_04.csv')
+f1905 <- read.csv('./datasets/2019_05.csv')
+f1906 <- read.csv('./datasets/2019_06.csv')
+f1907 <- read.csv('./datasets/2019_07.csv')
+f1908 <- read.csv('./datasets/2019_08.csv')
+f1909 <- read.csv('./datasets/2019_09.csv')
+f1910 <- read.csv('./datasets/2019_10.csv')
+f1911 <- read.csv('./datasets/2019_11.csv')
+f1912 <- read.csv('./datasets/2019_12.csv')
+
+NY_2019 <- rbind(f1901, f1902, f1903, f1904, f1905, f1906,
+                 f1907, f1908, f1909, f1910, f1911, f1912)
+
+f2001 <- read.csv('./datasets/2020_01.csv')
+f2002 <- read.csv('./datasets/2020_02.csv')
+f2003 <- read.csv('./datasets/2020_03.csv')
+f2004 <- read.csv('./datasets/2020_04.csv')
+f2005 <- read.csv('./datasets/2020_05.csv')
+f2006 <- read.csv('./datasets/2020_06.csv')
+f2007 <- read.csv('./datasets/2020_07.csv')
+f2008 <- read.csv('./datasets/2020_08.csv')
+f2009 <- read.csv('./datasets/2020_09.csv')
+f2010 <- read.csv('./datasets/2020_10.csv')
+f2011 <- read.csv('./datasets/2020_11.csv')
+f2012 <- read.csv('./datasets/2020_12.csv')
+
+NY_2020 <- rbind(f2001, f2002, f2003, f2004, f2005, f2006,
+                 f2007, f2008, f2009, f2010, f2011, f2012)
+
+f2101 <- read.csv('./datasets/2021_01.csv')
+f2102 <- read.csv('./datasets/2021_02.csv')
+f2103 <- read.csv('./datasets/2021_03.csv')
+f2104 <- read.csv('./datasets/2021_04.csv')
+f2105 <- read.csv('./datasets/2021_05.csv')
+f2106 <- read.csv('./datasets/2021_06.csv')
+f2107 <- read.csv('./datasets/2021_07.csv')
+f2108 <- read.csv('./datasets/2021_08.csv')
+
+NY_2021 <- rbind(f2101, f2102, f2103, f2104, f2105, f2106,
+                 f2107, f2108)
+
+NY_dec <- rbind(f1912, f2012)
 ```
