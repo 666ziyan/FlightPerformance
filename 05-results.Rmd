@@ -76,7 +76,7 @@ for (i in 1:5) {
     p <- p1 + p2
   }
   else{
-    p<- p+p1+p2
+    p<- p+p1+p2  #很丑
   }
   
   # filename <- paste(colnames(delayDetails)[(26+i)], ".pdf", sep = "")
@@ -86,6 +86,47 @@ for (i in 1:5) {
 p
 ```
 
+
+
+```{r, performance based on CRS_DEP_TIME}
+# flight performance per 3h
+# want to see if early or late flights delay more
+# divide into groups and see delay performance?
+# use NY_2019_cleaning
+
+time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
+             "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12pm")
+
+from_NY_2019 <- NY_2019_cleaning %>%
+  filter(((ORIGIN_CITY_NAME=='New York, NY') | (ORIGIN=='EWR'))) %>% 
+  arrange(CRS_DEP_TIME) %>%
+  group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
+  # ungroup() %>%
+  # mutate(dep_delay_mean = mean(DEP_DELAY, na.rm=TRUE)) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
+levels(from_NY_2019$dep_gr) = time_lv
+
+ggplot(from_NY_2019, aes(x=dep_gr)) + 
+  geom_point(aes(y=DEP_DELAY_Mean, color='Departure Delay')) + 
+  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival Delay')) +
+  scale_colour_manual("", breaks=c('Departure Delay','Arrival Delay'), values=c('red','blue')) +
+  labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2019')
+
+from_NY_2020 <- NY_2020_cleaning %>%
+  filter(((ORIGIN_CITY_NAME=='New York, NY') | (ORIGIN=='EWR'))) %>% 
+  arrange(CRS_DEP_TIME) %>%
+  group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
+levels(from_NY_2020$dep_gr) = time_lv
+
+ggplot(from_NY_2020, aes(x=dep_gr)) + 
+  geom_point(aes(y=DEP_DELAY_Mean, color='Departure Delay')) + 
+  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival Delay')) +
+  scale_colour_manual("", breaks=c('Departure Delay','Arrival Delay'), values=c('red','blue')) +
+  labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2020')
+
+
+```
 
 
 
