@@ -1,6 +1,6 @@
 # Missing values
 
-```{r}
+```{r, missing patterns}
 library(tidyverse)
 library(patchwork)
 source('missing_plot.R')

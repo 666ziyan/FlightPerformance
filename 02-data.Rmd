@@ -2,7 +2,7 @@
 
 ```{r, read data}
 NY_Jan = read.csv("~/Desktop/NY_Jan.csv")
-
+Jan_19 = read.csv('~/Desktop/19Jan.csv')
 f1901 <- read.csv('./datasets/2019_01.csv')
 f1902 <- read.csv('./datasets/2019_02.csv')
 f1903 <- read.csv('./datasets/2019_03.csv')

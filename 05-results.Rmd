@@ -1,11 +1,11 @@
 # Results
 
-# 1. Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.
+1. Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.
 
-```{r}
+```{r, airline delay count}
 library(ggplot2)
-# library(dplyr)
-data1 = filter(NY_Jan_cleaning, is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
+data1 = filter(NY_Jan_cleaning, 
+               is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
 delayCount <- data1 %>%
   count(data1$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
 delayCount$CARRIER_AIRLINE_ID <- format(delayCount$`data1$MKT_CARRIER_AIRLINE_ID`)
@@ -20,7 +20,7 @@ ggplot(data = delayCount, mapping = aes(x = CARRIER_AIRLINE_ID,
 
 The dataframe `NY_Jan_delayCount` shows the number of delays for each carrier within the January. We plot a simple bar graph to manifest the result more explicitly. Note that this figure only shows the number of times that the delay occurs, on the other side, we need to evaluate the averaged severity of the delays, i.e. the averaged time of the delays for each carrier.
 
-```{r}
+```{r, airline delay average}
 delayAverage <- data1
 delayAverage$delayTime <- rowSums(delayAverage[c(27:31)])
 delayAverage <- delayAverage %>%
@@ -41,12 +41,12 @@ ggplot(data = delayAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayMean)
 
 Moreover, we hope to explore the results for concrete delay reasons, i.e. `CARRIER_DELAY`, `WEATHER_DELAY`, `NAS_DELAY`, `SECURITY_DELAY` and `LATE_AIRCRAFT_DELAY`, 
 
-```{r}
+```{r, delay reason}
 library(tidyverse)
 library(gridExtra)
 library(patchwork)
 delayDetails <- data1
-setwd("~/Desktop")
+# setwd("~/Desktop")
 for (i in 1:5) {
   delayDetail = filter(delayDetails, delayDetails[,(i+26)] != 0)
   delayDetailCount <- delayDetail %>%
@@ -55,7 +55,8 @@ for (i in 1:5) {
   delayDetailCount <- delayDetailCount %>% 
     mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
   delayDetailCount <- delayDetailCount[, -1]
-  p1 <- ggplot(data = delayDetailCount, mapping = aes(x = CARRIER_AIRLINE_ID, y = count)) +
+  p1 <- ggplot(data = delayDetailCount, 
+               mapping = aes(x = CARRIER_AIRLINE_ID, y = count)) +
     geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
     labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
   
@@ -68,25 +69,36 @@ for (i in 1:5) {
   delayDetailAverage <- delayDetailAverage %>% 
     mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayDetailMean)])))
   delayDetailAverage <- delayDetailAverage[, -1]
-  p2 <- ggplot(data = delayDetailAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayDetailMean)) +
-    geom_bar(stat = 'identity', fill = ifelse(delayDetailAverage$delayDetailMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
-    geom_text(aes(label=round(delayDetailMean, 2)), position=position_dodge(width=0.6), vjust=-0.25) +
+  p2 <- ggplot(data = delayDetailAverage, 
+               mapping = aes(x = CARRIER_AIRLINE_ID, 
+                             y=delayDetailMean)) +
+    geom_bar(stat = 'identity', 
+             fill = ifelse(delayDetailAverage$delayDetailMean >= 60,
+                           '#95D1CC', '#577BC1'), color = '#161853') +
+    geom_text(aes(label=round(delayDetailMean, 2)), 
+              position=position_dodge(width=0.6), vjust=-0.25) +
     labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
-  if (i == 1) {
-    p <- p1 + p2
-  }
-  else{
-    p<- p+p1+p2  #很丑
-  }
+  p1 | p2
+  # if (i == 1) {
+  #   p <- p1 + p2
+  # }
+  # else{
+  #   p<- p+p1+p2  #很丑
+  # }
+ 
   
   # filename <- paste(colnames(delayDetails)[(26+i)], ".pdf", sep = "")
   # ggsave(filename = filename)
   
 }
-p
+
 ```
 
 
+
+
+
+PROBLEM TWO:
 
 ```{r, performance based on CRS_DEP_TIME}
 # flight performance per 3h
@@ -94,39 +106,83 @@ p
 # divide into groups and see delay performance?
 # use NY_2019_cleaning
 
+
 time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
              "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12pm")
 
 from_NY_2019 <- NY_2019_cleaning %>%
-  filter(((ORIGIN_CITY_NAME=='New York, NY') | (ORIGIN=='EWR'))) %>% 
+  filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
+  # from_NY_2019 %>% 
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
-  # ungroup() %>%
-  # mutate(dep_delay_mean = mean(DEP_DELAY, na.rm=TRUE)) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2019$dep_gr) = time_lv
 
-ggplot(from_NY_2019, aes(x=dep_gr)) + 
-  geom_point(aes(y=DEP_DELAY_Mean, color='Departure Delay')) + 
-  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival Delay')) +
-  scale_colour_manual("", breaks=c('Departure Delay','Arrival Delay'), values=c('red','blue')) +
-  labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2019')
-
 from_NY_2020 <- NY_2020_cleaning %>%
-  filter(((ORIGIN_CITY_NAME=='New York, NY') | (ORIGIN=='EWR'))) %>% 
+  filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2020$dep_gr) = time_lv
 
+
+
+
+
+ggplot(from_NY_2019, aes(x=dep_gr)) + 
+  geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
+  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival')) +
+  scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('red','blue')) +
+  labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2019')
+
+
+
 ggplot(from_NY_2020, aes(x=dep_gr)) + 
-  geom_point(aes(y=DEP_DELAY_Mean, color='Departure Delay')) + 
-  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival Delay')) +
-  scale_colour_manual("", breaks=c('Departure Delay','Arrival Delay'), values=c('red','blue')) +
+  geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
+  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival')) +
+  scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('red','blue')) +
   labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2020')
 
-
 ```
+
+
+
+PROBLEM THREE
+```{r, to NYC problem}
+to_NY_2019 <- NY_2019_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK')) %>%
+  # arrange(ORIGIN, CRS_DEP_TIME) %>%
+  group_by(ORIGIN, DEST) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  arrange(ORIGIN)
+
+to_NY_2020 <- NY_2020_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK')) %>%
+  # arrange(ORIGIN, CRS_DEP_TIME) %>%
+  group_by(ORIGIN, DEST) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  arrange(ORIGIN)
+
+to_NY_Jan_19 <- Jan_19_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK') | (DEST =='EWR')) %>%
+  group_by(ORIGIN, DEST) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  arrange(ORIGIN) %>%
+  group_by(DEST)
+
+# ggplot(to_NY_Jan_19, aes(x=DEST)) 
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
