@@ -82,6 +82,7 @@ for (i in 1:5) {
                            '#95D1CC', '#577BC1'), color = '#161853') +
     geom_text(aes(label=round(delayDetailMean, 2)), 
               position=position_dodge(width=0.6), vjust=-0.25) +
+
     labs(x = "ID", y = 'AVE_TIME') + 
     ggtitle(paste(colnames(delayDetails)[i+26],'AVE_TIME'))
   
@@ -100,7 +101,6 @@ for (i in 1:5) {
   # ggsave(filename = filename)
   
 }
-
 ```
 
 
@@ -130,6 +130,7 @@ from_NY_2020 <- NY_2020_cleaning %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2020$dep_gr) = time_lv
+
 
 # ggplot(from_NY_2019, aes(x=dep_gr)) + 
 #   geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
@@ -240,6 +241,7 @@ from_NY_2019_allu <- NY_2019_cleaning %>%
   group_by(mon = str_sub(FL_DATE,6,7))
 levels(from_NY_2019_allu$dep_gr) = time_lv
 
+
 from_NY_2020_allu <- NY_2020_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
@@ -298,12 +300,24 @@ to_NY_Jan_19 <- Jan_19_cleaning %>%
   filter((DEST=='LGA') | (DEST=='JFK') | (DEST =='EWR')) %>%
   group_by(ORIGIN, DEST) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
-  arrange(ORIGIN) %>%
-  group_by(DEST)
+  arrange(ORIGIN) 
 
-# ggplot(to_NY_Jan_19, aes(x=DEST)) 
+# ggplot(to_NY_Jan_19) + 
 ```
 
+```{r}
+# which airline is the fastest?
+# ACTUAL_ELAPSED_TIME / DISTANCE
+
+airline_19 <- US_2019_cleaning %>%
+  group_by(MKT_CARRIER_AIRLINE_ID) %>%
+  mutate(speed = ACTUAL_ELAPSED_TIME / DISTANCE*60) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY, speed), 
+               list(Mean=mean))
+
+ggplot(airline_19)
+
+```
 
 
 
