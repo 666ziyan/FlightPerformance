@@ -1,11 +1,14 @@
 # Results
 
-1. Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.
+PROBLEM ONE: Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.
 
 ```{r, airline delay count}
 library(ggplot2)
-data1 = filter(NY_Jan_cleaning, 
+data1 = filter(NY_Jan_cleaning,
                is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
+# data1 <- filter(NY_2020_cleaning,
+#                is.na(NY_2020_cleaning$CARRIER_DELAY) == FALSE)
+  
 delayCount <- data1 %>%
   count(data1$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
 delayCount$CARRIER_AIRLINE_ID <- format(delayCount$`data1$MKT_CARRIER_AIRLINE_ID`)
@@ -42,6 +45,7 @@ ggplot(data = delayAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayMean)
 Moreover, we hope to explore the results for concrete delay reasons, i.e. `CARRIER_DELAY`, `WEATHER_DELAY`, `NAS_DELAY`, `SECURITY_DELAY` and `LATE_AIRCRAFT_DELAY`, 
 
 ```{r, delay reason}
+library(dplyr)
 library(tidyverse)
 library(gridExtra)
 library(patchwork)
@@ -58,7 +62,8 @@ for (i in 1:5) {
   p1 <- ggplot(data = delayDetailCount, 
                mapping = aes(x = CARRIER_AIRLINE_ID, y = count)) +
     geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
-    labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
+    labs(x = "ID", y = 'COUNT') + 
+    ggtitle(paste(colnames(delayDetails)[i+26], 'COUNT'))
   
   delayDetailAverage <- delayDetail
   delayDetailAverage$delayDetailCopy <- delayDetailAverage[,(i+26)]
@@ -77,25 +82,30 @@ for (i in 1:5) {
                            '#95D1CC', '#577BC1'), color = '#161853') +
     geom_text(aes(label=round(delayDetailMean, 2)), 
               position=position_dodge(width=0.6), vjust=-0.25) +
-    labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
-  # print(p1 + p2)
-  if (i == 1) {
-    p <- p1 + p2
-  }
-  else{
-    p<- p /
-        (p1 | p2)
-  }
 
+    labs(x = "ID", y = 'AVE_TIME') + 
+    ggtitle(paste(colnames(delayDetails)[i+26],'AVE_TIME'))
+  
+  p1 | p2
+  p <- p1 + p2 + plot_layout(ncol = 2)
+  print(p)
+  
+  # if (i == 1) {
+  #   p <- p1 + p2
+  # }
+  # else{
+  #   p <- p + p1 + p2  #很丑 #(很可爱了哈哈
+  # }
+  
+  # filename <- paste(colnames(delayDetails)[(26+i)], ".pdf", sep = "")
+  # ggsave(filename = filename)
   
 }
 ```
 
 
 
-
-
-PROBLEM TWO:
+PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance?
 
 ```{r, performance based on CRS_DEP_TIME}
 # flight performance per 3h
@@ -105,11 +115,10 @@ PROBLEM TWO:
 
 
 time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
-             "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12pm")
+             "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12am")
 
 from_NY_2019 <- NY_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
-  # from_NY_2019 %>% 
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
@@ -122,39 +131,135 @@ from_NY_2020 <- NY_2020_cleaning %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2020$dep_gr) = time_lv
 
-from_NYC_2019 <- US_2019_cleaning %>%
-  filter((ORIGIN=='JFK') | (ORIGIN=='LGA') | (ORIGIN=='EWR')) %>%
+
+# ggplot(from_NY_2019, aes(x=dep_gr)) + 
+#   geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
+#   geom_point(aes(y=ARR_DELAY_Mean, color='Arrival')) +
+#   scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('red','blue')) +
+#   labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2019')
+# 
+# ggplot(from_NY_2020, aes(x=dep_gr)) + 
+#   geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
+#   geom_point(aes(y=ARR_DELAY_Mean, color='Arrival')) +
+#   scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('red','blue')) +
+#   labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NY in 2020')
+
+from_NY_2019$year <- "2019"
+from_NY_2020$year <- "2020"
+from_NY <- rbind(from_NY_2019, from_NY_2020)
+
+ggplot(from_NY, aes(x=dep_gr, shape = year)) + 
+  geom_point(aes(y = DEP_DELAY_Mean, color = 'Departure', size = 1)) + 
+  geom_point(aes(y = ARR_DELAY_Mean, color = 'Arrival', size = 1)) +
+  geom_hline(yintercept = 0, color = "#116530") + 
+  scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('#DD4A48','#064663')) +
+  scale_discrete_manual(values = c(4,18), aesthetics = 'shape') +
+  labs(x="CRS Departure Time", y="Average Delay (min)", title='Early / Late Flight Performance from NY') +
+  scale_size_continuous(guide = F)
+```
+
+```{r}
+time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
+             "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12am")
+
+time_lv_index <- c("0", "1", "2", "3", "4","5", "6", "7")
+
+from_NY_2019_dest <- NY_2019_cleaning %>%
+  filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
-  group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
+  group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), DEST_STATE_ABR) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
-levels(from_NYC_2019$dep_gr) = time_lv
+levels(from_NY_2019_dest$dep_gr) = time_lv_index
 
-from_NYC_2020 <- US_2020_cleaning %>%
-  filter((ORIGIN=='JFK') | (ORIGIN=='LGA') | (ORIGIN=='EWR')) %>%
+from_NY_2020_dest <- NY_2020_cleaning %>%
+  filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
-  group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
+  group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), DEST_STATE_ABR) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
-levels(from_NYC_2020$dep_gr) = time_lv
+levels(from_NY_2020_dest$dep_gr) = time_lv_index
 
-ggplot(from_NYC_2019, aes(x=dep_gr)) + 
-  geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
-  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival')) +
-  scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('red','blue')) +
-  labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NYC in 2019')
+from_NY_2019_dest$year <- "2019"
+from_NY_2020_dest$year <- "2020"
+from_NY_dest <- rbind(from_NY_2019_dest, from_NY_2020_dest)
 
+ggplot(from_NY_dest, aes(x=dep_gr)) + 
+  geom_point(aes(y = DEP_DELAY_Mean, color = year)) + 
+  geom_hline(yintercept = 0, color = "#116530") + 
+  scale_colour_manual(values=c('#DD4A48','#FBD148')) +
+  labs(x="CRS Departure Time", y="Average Delay (min)", title='Early / Late Flight Performance from NY to US') +
+  facet_wrap(~DEST_STATE_ABR, ncol=10)
+  
+```
 
+```{r}
+library(stringr)
+from_NY_2019_month <- NY_2019_cleaning %>%
+  filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
+  arrange(CRS_DEP_TIME) %>%
+  group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), mon = str_sub(FL_DATE,6,7)) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
+levels(from_NY_2019_month$dep_gr) = time_lv_index
 
-ggplot(from_NYC_2020, aes(x=dep_gr)) + 
-  geom_point(aes(y=DEP_DELAY_Mean, color='Departure')) + 
-  geom_point(aes(y=ARR_DELAY_Mean, color='Arrival')) +
-  scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('red','blue')) +
-  labs(x="CRS Departure Time", y="Average Delay (min)", title='Flight Performance from NYC in 2020')
+from_NY_2020_month <- NY_2020_cleaning %>%
+  filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
+  arrange(CRS_DEP_TIME) %>%
+  group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), mon = str_sub(FL_DATE,6,7)) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
+levels(from_NY_2020_month$dep_gr) = time_lv_index
+
+from_NY_2019_month$year <- "2019"
+from_NY_2020_month$year <- "2020"
+from_NY_month <- rbind(from_NY_2019_month, from_NY_2020_month)
+
+from_NY_month <- within(from_NY_month, mon <- factor(mon, levels = c("12", "03", "06", "09","01", "04", "07", "10","02", "05", "08", "11")))
+with(from_NY_month, levels(mon))
+
+ggplot(from_NY_month, aes(x=dep_gr)) + 
+  geom_point(aes(y = DEP_DELAY_Mean, color = year)) + 
+  geom_hline(yintercept = 0, color = "#116530") + 
+  scale_colour_manual(values=c('#DD4A48','#FBD148')) +
+  labs(x="CRS Departure Time", y="Average Delay (min)", title='Monthly Early / Late Flight Performance from NY') +
+  facet_wrap(~mon, ncol=4)
 
 ```
 
+```{r}
+library(ggalluvial)
+from_NY_2019_allu <- NY_2019_cleaning %>%
+  filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
+  arrange(CRS_DEP_TIME) %>%
+  group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), FL_DATE) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  group_by(mon = str_sub(FL_DATE,6,7))
+levels(from_NY_2019_allu$dep_gr) = time_lv_index
 
 
-PROBLEM THREE
+from_NY_2020_allu <- NY_2020_cleaning %>%
+  filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
+  arrange(CRS_DEP_TIME) %>%
+  group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), FL_DATE) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  group_by(mon = str_sub(FL_DATE,6,7))
+levels(from_NY_2020_allu$dep_gr) = time_lv_index
+
+from_NY_2019_allu$YEAR <- "2019"
+from_NY_2020_allu$YEAR <- "2020"
+from_NY_2019_allu$DATE <- str_sub(from_NY_2019_allu$FL_DATE,9,10)
+from_NY_2020_allu$DATE <- str_sub(from_NY_2020_allu$FL_DATE,9,10)
+from_NY_allu <- rbind(from_NY_2019_allu, from_NY_2020_allu)
+
+from_NY_2019_allu_01 <- from_NY_2019_allu %>%
+  filter(mon == "01")
+ggplot(from_NY_2019_allu_01, aes(x=DATE)) + 
+  geom_line(aes(y = DEP_DELAY_Mean, color = dep_gr)) + 
+  geom_hline(yintercept = 0, color = "#116530") + 
+  labs(x="CRS Departure DATE", y="Average Delay (min)", title='Daily Early / Late Flight Performance from NY') +
+  facet_wrap(~mon, ncol=4)
+```
+
+PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city?
+
+
 ```{r, to NYC problem}
 to_NY_2019 <- NY_2019_cleaning %>% 
   filter((DEST=='LGA') | (DEST=='JFK')) %>%
