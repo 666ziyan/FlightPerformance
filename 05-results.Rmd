@@ -158,6 +158,8 @@ ggplot(from_NY, aes(x=dep_gr, shape = year)) +
   scale_size_continuous(guide = F)
 ```
 
+As we can see in the above plot, flight performance of 2020 is obviously better than in 2019. The green horizontal line at level 0 indicates the flight delays or not. Specifically, flights in 2020 almost arrive in advance to their destination no matter they departs lately or not. Unfortunately, flights in 2019 almost depart lately. Moreover, late flights seem to performance worse than early flights in general.
+
 ```{r}
 time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
              "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12am")
@@ -191,6 +193,8 @@ ggplot(from_NY_dest, aes(x=dep_gr)) +
   
 ```
 
+The plot shows the performance of flights from NY to other states within US. Almost all subgraphs indicate similar conclusions in the previous picture, i.e. flight performance of 2020 is obviously better than in 2019, and also late flights seem to performance worse than early flights. Note that flights to some destinations e.g. HI, MT, NM, are only provided in certain periods, which may caused by the distance and passenger volume.
+
 ```{r}
 library(stringr)
 from_NY_2019_month <- NY_2019_cleaning %>%
@@ -223,15 +227,19 @@ ggplot(from_NY_month, aes(x=dep_gr)) +
 
 ```
 
+The plot above shows flights performance in each months, which also yields the two conclusions mentioned berofe. Moreover, some other interesting observations are: (1) Note that in winter (Dec, Jan, Feb), flight performance is in general worse than in other seasons, especially for those late flights, which may due to the cold weather. (2) Season Fall seems to have the best flight performance.
+
 ```{r}
-library(ggalluvial)
+library(epade)
+library(reshape2)
+
 from_NY_2019_allu <- NY_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), FL_DATE) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
   group_by(mon = str_sub(FL_DATE,6,7))
-levels(from_NY_2019_allu$dep_gr) = time_lv_index
+levels(from_NY_2019_allu$dep_gr) = time_lv
 
 
 from_NY_2020_allu <- NY_2020_cleaning %>%
@@ -240,22 +248,35 @@ from_NY_2020_allu <- NY_2020_cleaning %>%
   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), FL_DATE) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
   group_by(mon = str_sub(FL_DATE,6,7))
-levels(from_NY_2020_allu$dep_gr) = time_lv_index
+levels(from_NY_2020_allu$dep_gr) = time_lv
 
 from_NY_2019_allu$YEAR <- "2019"
 from_NY_2020_allu$YEAR <- "2020"
 from_NY_2019_allu$DATE <- str_sub(from_NY_2019_allu$FL_DATE,9,10)
 from_NY_2020_allu$DATE <- str_sub(from_NY_2020_allu$FL_DATE,9,10)
-from_NY_allu <- rbind(from_NY_2019_allu, from_NY_2020_allu)
 
-from_NY_2019_allu_01 <- from_NY_2019_allu %>%
-  filter(mon == "01")
-ggplot(from_NY_2019_allu_01, aes(x=DATE)) + 
-  geom_line(aes(y = DEP_DELAY_Mean, color = dep_gr)) + 
-  geom_hline(yintercept = 0, color = "#116530") + 
-  labs(x="CRS Departure DATE", y="Average Delay (min)", title='Daily Early / Late Flight Performance from NY') +
-  facet_wrap(~mon, ncol=4)
+
+from_NY_2019_dat = from_NY_2019_allu[, c(1,3,5)]
+from_NY_2019_dat <- from_NY_2019_dat[, c("mon","dep_gr","DEP_DELAY_Mean")]
+names(from_NY_2019_dat)[names(from_NY_2019_dat) == 'DEP_DELAY_Mean'] <- 'value'
+par(las=2,cex=1.5)
+tmp = dcast(from_NY_2019_dat, mon~dep_gr, mean)
+tmp_data = as.matrix(tmp[, -1])
+rownames(tmp_data) = tmp[, 1]
+p1 <- bar3d.ade(t(tmp_data), wall = 1, xw = 0.3, zw = 1.2, xlab = "month", ylab = "ave-delay", main = "2019 month-period averaged delay")
+
+from_NY_2020_dat = from_NY_2020_allu[, c(1,3,5)]
+from_NY_2020_dat <- from_NY_2020_dat[, c("mon","dep_gr","DEP_DELAY_Mean")]
+names(from_NY_2020_dat)[names(from_NY_2020_dat) == 'DEP_DELAY_Mean'] <- 'value'
+par(las=2,cex=1.5)
+tmp2 = dcast(from_NY_2020_dat, mon~dep_gr, mean)
+tmp_data2 = as.matrix(tmp2[, -1])
+rownames(tmp_data2) = tmp2[, 1]
+p2 <- bar3d.ade(t(tmp_data2), wall = 3, xw = 0.6, zw = 1.8, xlab = "month", ylab = "ave-delay", main = "2020 month-period averaged delay")
+
 ```
+
+3D plot is more powerful to show the variation of a quantity grouped by multi-indexes.
 
 PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city?
 
