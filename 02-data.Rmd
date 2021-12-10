@@ -3,6 +3,8 @@
 ```{r, read data}
 NY_Jan = read.csv("~/Desktop/NY_Jan.csv")
 Jan_19 = read.csv('~/Desktop/19Jan.csv')
+
+
 f1901 <- read.csv('./datasets/2019_01.csv')
 f1902 <- read.csv('./datasets/2019_02.csv')
 f1903 <- read.csv('./datasets/2019_03.csv')
@@ -48,4 +50,30 @@ NY_2021 <- rbind(f2101, f2102, f2103, f2104, f2105, f2106,
                  f2107, f2108)
 
 NY_dec <- rbind(f1912, f2012)
+
+
+
+
+for (i in formatC(c(1:12), width=2, flag="0")) {
+  varname = paste('a19',i, sep='' )
+  filename = paste('./datasets/a19', i,'.csv', sep='')
+  assign(varname, read.csv(filename))
+}
+
+US_2019 <- rbind(a1901, a1902, a1903, a1904, a1905, a1906, a1907,
+                 a1908, a1909, a1910, a1911, a1912)
+
+
+for (i in formatC(c(1:12), width=2, flag="0")) {
+  varname = paste('a20',i, sep='' )
+  filename = paste('./datasets/a20', i,'.csv', sep='')
+  assign(varname, read.csv(filename))
+}
+
+US_2020 <- rbind(a2001, a2002, a2003, a2004, a2005, a2006,
+                 a2007, a2008, a2009, a2010, a2011, a2012)
+
+airline_ID <- read.csv('./datasets/L_AIRLINE_ID.csv')
+
+
 ```
