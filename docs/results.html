@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyan Liu, Mingyue Xu" />
 
 
-<meta name="date" content="2021-12-09" />
+<meta name="date" content="2021-12-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -101,18 +101,21 @@
             <section class="normal" id="section-">
 <div id="results" class="section level1" number="5">
 <h1><span class="header-section-number">Chapter 5</span> Results</h1>
-<ol style="list-style-type: decimal">
-<li>Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.</li>
-</ol>
+<p>PROBLEM ONE: Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.</p>
 <p><img src="finalproj_files/figure-html/airline%20delay%20count-1.png" width="672" /></p>
 <p>The dataframe <code>NY_Jan_delayCount</code> shows the number of delays for each carrier within the January. We plot a simple bar graph to manifest the result more explicitly. Note that this figure only shows the number of times that the delay occurs, on the other side, we need to evaluate the averaged severity of the delays, i.e. the averaged time of the delays for each carrier.</p>
 <p><img src="finalproj_files/figure-html/airline%20delay%20average-1.png" width="672" /></p>
 <p>Moreover, we hope to explore the results for concrete delay reasons, i.e. <code>CARRIER_DELAY</code>, <code>WEATHER_DELAY</code>, <code>NAS_DELAY</code>, <code>SECURITY_DELAY</code> and <code>LATE_AIRCRAFT_DELAY</code>,</p>
-<p><img src="finalproj_files/figure-html/delay%20reason-1.png" width="672" /></p>
-<p>PROBLEM TWO:</p>
-<p><img src="finalproj_files/figure-html/performance%20based%20on%20CRS_DEP_TIME-1.png" width="672" /><img src="finalproj_files/figure-html/performance%20based%20on%20CRS_DEP_TIME-2.png" width="672" /></p>
-<p>PROBLEM THREE
-<img src="finalproj_files/figure-html/to%20NYC%20problem-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/delay%20reason-1.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-2.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-3.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-4.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-5.png" width="672" /></p>
+<p>PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance?</p>
+<p><img src="finalproj_files/figure-html/performance%20based%20on%20CRS_DEP_TIME-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre><code>##  [1] &quot;12&quot; &quot;03&quot; &quot;06&quot; &quot;09&quot; &quot;01&quot; &quot;04&quot; &quot;07&quot; &quot;10&quot; &quot;02&quot; &quot;05&quot; &quot;08&quot; &quot;11&quot;</code></pre>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city?</p>
+<p><img src="finalproj_files/figure-html/to%20NYC%20problem-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 
 </div>
             </section>

@@ -34,7 +34,8 @@ US_2020_cleaning <- US_2020[, -30] %>%
 
 ```
 
-According to the result of missing pattern plotting, we would like to clean the worthless column `x`, and also those incomplete data points, which has some delay-irrelevant features being NA values.
+
+The downloaded monthly data are stored in csv files, so we simply read the data with R function `read.csv` and store them in respective variables. Then we combine them by year using `rbind` function in variables `US_2019` and `US_2020`.
 
 
 

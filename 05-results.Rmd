@@ -261,40 +261,44 @@ PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airp
 
 
 ```{r, to NYC problem}
-to_NY_2019 <- NY_2019_cleaning %>% 
-  filter((DEST=='LGA') | (DEST=='JFK')) %>%
+to_NYC_2019 <- US_2019_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK') | (DEST=='EWR')) %>%
   # arrange(ORIGIN, CRS_DEP_TIME) %>%
   group_by(ORIGIN, DEST) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
   arrange(ORIGIN)
 
-to_NY_2020 <- NY_2020_cleaning %>% 
-  filter((DEST=='LGA') | (DEST=='JFK')) %>%
+to_NYC_2020 <- US_2020_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK')| (DEST=='EWR')) %>%
   # arrange(ORIGIN, CRS_DEP_TIME) %>%
   group_by(ORIGIN, DEST) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
   arrange(ORIGIN)
 
-to_NY_Jan_19 <- Jan_19_cleaning %>% 
-  filter((DEST=='LGA') | (DEST=='JFK') | (DEST =='EWR')) %>%
-  group_by(ORIGIN, DEST) %>%
-  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
-  arrange(ORIGIN) 
-
-# ggplot(to_NY_Jan_19) + 
+ggplot(to_NYC_2019, aes(x=DEST)) + 
+  geom_point(aes(y = DEP_DELAY_Mean)) + 
+  geom_hline(yintercept = 0, color = "#116530") + 
+  scale_colour_manual(values=c('#DD4A48','#FBD148')) +
+  labs(x="Airpot", y="Average Delay (min)", 
+       title='Flight Performance from US to NYC') 
+  # facet_wrap(~DEST_STATE_ABR, ncol=10)
 ```
 
 ```{r}
 # which airline is the fastest?
-# ACTUAL_ELAPSED_TIME / DISTANCE
+# DISTANCE / ACTUAL_ELAPSED_TIME
+# or AIR_TIME
 
 airline_19 <- US_2019_cleaning %>%
   group_by(MKT_CARRIER_AIRLINE_ID) %>%
-  mutate(speed = ACTUAL_ELAPSED_TIME / DISTANCE*60) %>%
+  mutate(speed = DISTANCE / AIR_TIME *60) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY, speed), 
                list(Mean=mean))
 
-ggplot(airline_19)
+ggplot(airline_19) + 
+  geom_point(aes(x=MKT_CARRIER_AIRLINE_ID, y=speed_Mean)) +
+  labs(x="Carrier ID", y="Average Speed (mph)", 
+       title = "Average Speed of US Domestic Flights")
 
 ```
 
