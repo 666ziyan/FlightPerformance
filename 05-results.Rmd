@@ -1,13 +1,20 @@
 # Results
 
-PROBLEM ONE: Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes.
+<!-- PROBLEM ONE: Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes. -->
+
+
+## Compare Carriers' On-Time Performance
+As we can see from the figure below, `Delta Air Lines Inc.` have over 3,000 flights delayed during January 2019 from and to New York state, `American Airlines Inc.` also have more than 2,000 flights delayed, and the number is approximately 1.200 for `JetBlue Airways`. This is justifiable since these are the major airlines that conduct the most domestic flights, and the number of delayed flights, certainly, increases as the number of total conducted flights increases. Note that this figure only shows the number of times that delay occurs. On the other side, we need to evaluate the average severity of the delays, i.e. the average time of the delays for each carrier.
+
+
 
 ```{r, airline delay count}
 library(ggplot2)
-data1 = filter(NY_Jan_cleaning,
-               is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
-# data1 <- filter(NY_2020_cleaning,
-#                is.na(NY_2020_cleaning$CARRIER_DELAY) == FALSE)
+data1 = a1901_cleaning %>%
+  filter(is.na(CARRIER_DELAY) == FALSE) %>%
+  filter(ORIGIN_STATE_ABR == 'NY')
+# data1 = filter(NY_Jan_cleaning,
+#                is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
   
 delayCount <- data1 %>%
   count(data1$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
@@ -18,14 +25,19 @@ delayCount <- delayCount[, -1]
 ggplot(data = delayCount, mapping = aes(x = CARRIER_AIRLINE_ID, 
                                         y = count)) +
   geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
-  labs(x = "CARRIER AIRLINE ID", y = 'DELAY COUNT')
+  labs(x = "Carrier Airline ID", y = 'Delay Count', title='Number of Delays in Jan. 2019 from and to NY')
 ```
 
-The dataframe `NY_Jan_delayCount` shows the number of delays for each carrier within the January. We plot a simple bar graph to manifest the result more explicitly. Note that this figure only shows the number of times that the delay occurs, on the other side, we need to evaluate the averaged severity of the delays, i.e. the averaged time of the delays for each carrier.
+<!-- The dataframe `NY_Jan_delayCount` shows the number of delays for each carrier within January. We plot a simple bar graph to manifest the result more explicitly. Note that this figure only shows the number of times that the delay occurs, on the other side, we need to evaluate the averaged severity of the delays, i.e. the averaged time of the delays for each carrier. -->
+
+
+
+Therefore, we make another bar plot manifesting the average delay time for each carrier airline. Using the same dataset as above (flights from and to New York state during January 2019), we can see that `United Air Lines Inc` have the longest average delay time of 104.83 minutes. `Hawaiian Airlines Inc.`, `Spirit Air Lines`, `Delta Air Lines Inc.`, `JetBlue Airways`, `American Airlines Inc.` and `Frontier Airlines Inc.` all have average delay time longer than an hour.
+
 
 ```{r, airline delay average}
 delayAverage <- data1
-delayAverage$delayTime <- rowSums(delayAverage[c(27:31)])
+delayAverage$delayTime <- rowSums(delayAverage[c(25:29)]) #changed 27:31
 delayAverage <- delayAverage %>%
   group_by(delayAverage$MKT_CARRIER_AIRLINE_ID) %>%
   summarise(delayMean = mean(delayTime))
@@ -39,10 +51,22 @@ delayAverage <- delayAverage[, -1]
 ggplot(data = delayAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayMean)) +
   geom_bar(stat = 'identity', fill = ifelse(delayAverage$delayMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
   geom_text(aes(label=round(delayMean, 2)), position=position_dodge(width=0.9), vjust=-0.25) +
-  labs(x = "CARRIER AIRLINE ID", y = 'AVERAGED DELAY TIME / MINS')
+  labs(x = "Carrier Airline ID", y = 'Average Delay Time (min)', title='Average Delay Time for Each Carrier Airline')
 ```
 
-Moreover, we hope to explore the results for concrete delay reasons, i.e. `CARRIER_DELAY`, `WEATHER_DELAY`, `NAS_DELAY`, `SECURITY_DELAY` and `LATE_AIRCRAFT_DELAY`, 
+
+
+Moreover, we hope to explore the results for concrete delay reasons, i.e. `CARRIER_DELAY`, `WEATHER_DELAY`, `NAS_DELAY`, `SECURITY_DELAY` and `LATE_AIRCRAFT_DELAY`. For each reason, we make two figures showing the count of delays and average delay time with respect to each carrier.  
+
+From the figures, we can find that the most common and severe reason causing flight delays is `LATE_AIRCRAFT_DELAY`, which presumably can be due to the late arrival or preceding flights. There are almost 2,000 `Delta Air Lines Inc.` flights are delayed due to this reason, and the average waiting time exceeds 2 hours for `Hawaiian Airlines Inc.` flights.   
+
+The second most common reason is `NAS_DELAY`, i.e., national air system delay, but the average time caused by this is typically not as long as that caused by other reasons, mostly within an hour.  
+
+`CARRIER_DELAY` is the third most common reason that causes delays. This happens a lot of times for `Delta Air Lines Inc.`, `JetBlue Airways`, and `American Airlines Inc.`. On average, when this happens, the waiting time for `United Air Lines Inc.` flights is over 100 minutes. 
+
+`WEATHER_DELAY` is less frequent than the three above. `Delta Air Lines Inc.` and `American Airlines Inc.` have about 150 delays caused by weather, which is a very small proportion of all delays. However, the time is highly variable- the longest is 118 minutes for `Delta Air Lines Inc.`, and the shortest is only 12.5 minutes.  
+
+Among all 5 reasons, `SECURITY_DELAY` is the rarest, and only occurs 15 times. Therefore, we do not discuss this reason in detail.
 
 ```{r, delay reason}
 library(dplyr)
@@ -51,8 +75,9 @@ library(gridExtra)
 library(patchwork)
 delayDetails <- data1
 # setwd("~/Desktop")
+# changed 26 to 24!!
 for (i in 1:5) {
-  delayDetail = filter(delayDetails, delayDetails[,(i+26)] != 0)
+  delayDetail = filter(delayDetails, delayDetails[,(i+24)] != 0)
   delayDetailCount <- delayDetail %>%
     count(delayDetail$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
   delayDetailCount$CARRIER_AIRLINE_ID <- format(delayDetailCount$`delayDetail$MKT_CARRIER_AIRLINE_ID`)
@@ -63,10 +88,10 @@ for (i in 1:5) {
                mapping = aes(x = CARRIER_AIRLINE_ID, y = count)) +
     geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
     labs(x = "ID", y = 'COUNT') + 
-    ggtitle(paste(colnames(delayDetails)[i+26], 'COUNT'))
+    ggtitle(paste(colnames(delayDetails)[i+24], 'COUNT'))
   
   delayDetailAverage <- delayDetail
-  delayDetailAverage$delayDetailCopy <- delayDetailAverage[,(i+26)]
+  delayDetailAverage$delayDetailCopy <- delayDetailAverage[,(i+24)]
   delayDetailAverage <- delayDetailAverage %>%
     group_by(delayDetailAverage$MKT_CARRIER_AIRLINE_ID) %>%
     summarise(delayDetailMean = mean(delayDetailCopy))
@@ -84,7 +109,7 @@ for (i in 1:5) {
               position=position_dodge(width=0.6), vjust=-0.25) +
 
     labs(x = "ID", y = 'AVE_TIME') + 
-    ggtitle(paste(colnames(delayDetails)[i+26],'AVE_TIME'))
+    ggtitle(paste(colnames(delayDetails)[i+24],'AVE_TIME'))
   
   p1 | p2
   p <- p1 + p2 + plot_layout(ncol = 2)
@@ -105,7 +130,13 @@ for (i in 1:5) {
 
 
 
-PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance?
+<!-- PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance? -->
+
+## On-Time Performance Accross the Day
+
+In addition to comparing the differences among the various airlines, we also compared the on-time performance of flights at difference time of a day. We divide the 24 hours of a day into 8 groups, one group every three hours, and calculated the average delay time of departure and arrival. As we can see in the plot below, flight performance of 2020 is obviously better than in 2019. The green horizontal line at level 0 indicates the flight delays or not. Specifically, flights in 2020 almost arrive in advance to their destination no matter they departs lately or not. Unfortunately, flights in 2019 almost depart lately. Moreover, late flights seem to performance worse than early flights in general.
+
+
 
 ```{r, performance based on CRS_DEP_TIME}
 # flight performance per 3h
@@ -117,14 +148,14 @@ PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin a
 time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
              "12pm~3pm", "3pm~6pm", "6pm~9pm", "9pm~12am")
 
-from_NY_2019 <- NY_2019_cleaning %>%
+from_NY_2019 <- US_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2019$dep_gr) = time_lv
 
-from_NY_2020 <- NY_2020_cleaning %>%
+from_NY_2020 <- US_2020_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300))) %>% 
@@ -155,10 +186,10 @@ ggplot(from_NY, aes(x=dep_gr, shape = year)) +
   scale_colour_manual("", breaks=c('Departure','Arrival'), values=c('#DD4A48','#064663')) +
   scale_discrete_manual(values = c(4,18), aesthetics = 'shape') +
   labs(x="CRS Departure Time", y="Average Delay (min)", title='Early / Late Flight Performance from NY') +
-  scale_size_continuous(guide = F)
+  scale_size_continuous(guide = "none")
 ```
 
-As we can see in the above plot, flight performance of 2020 is obviously better than in 2019. The green horizontal line at level 0 indicates the flight delays or not. Specifically, flights in 2020 almost arrive in advance to their destination no matter they departs lately or not. Unfortunately, flights in 2019 almost depart lately. Moreover, late flights seem to performance worse than early flights in general.
+
 
 ```{r}
 time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
@@ -166,14 +197,14 @@ time_lv <- c("12am~3am", "3am~6am", "6am~9am", "9am~12pm",
 
 time_lv_index <- c("0", "1", "2", "3", "4","5", "6", "7")
 
-from_NY_2019_dest <- NY_2019_cleaning %>%
+from_NY_2019_dest <- US_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), DEST_STATE_ABR) %>% 
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2019_dest$dep_gr) = time_lv_index
 
-from_NY_2020_dest <- NY_2020_cleaning %>%
+from_NY_2020_dest <- US_2020_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr=cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), DEST_STATE_ABR) %>% 
@@ -197,14 +228,14 @@ The plot shows the performance of flights from NY to other states within US. Alm
 
 ```{r}
 library(stringr)
-from_NY_2019_month <- NY_2019_cleaning %>%
+from_NY_2019_month <- US_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), mon = str_sub(FL_DATE,6,7)) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean))
 levels(from_NY_2019_month$dep_gr) = time_lv_index
 
-from_NY_2020_month <- NY_2020_cleaning %>%
+from_NY_2020_month <- US_2020_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), mon = str_sub(FL_DATE,6,7)) %>%
@@ -233,7 +264,7 @@ The plot above shows flights performance in each months, which also yields the t
 library(epade)
 library(reshape2)
 
-from_NY_2019_allu <- NY_2019_cleaning %>%
+from_NY_2019_allu <- US_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), FL_DATE) %>%
@@ -242,7 +273,7 @@ from_NY_2019_allu <- NY_2019_cleaning %>%
 levels(from_NY_2019_allu$dep_gr) = time_lv
 
 
-from_NY_2020_allu <- NY_2020_cleaning %>%
+from_NY_2020_allu <- US_2020_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY')) %>%
   arrange(CRS_DEP_TIME) %>%
   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), FL_DATE) %>%
@@ -278,6 +309,7 @@ p2 <- bar3d.ade(t(tmp_data2), wall = 3, xw = 0.6, zw = 1.8, xlab = "month", ylab
 
 3D plot is more powerful to show the variation of a quantity grouped by multi-indexes.
 
+## NYC
 PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city?
 
 

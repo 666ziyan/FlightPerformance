@@ -3,5 +3,7 @@ data-sources
 data-transformation
 missing-values
 results
+compare-carriers-on-time-performance
+on-time-performance-accross-the-day
 interactive-component
 conclusion

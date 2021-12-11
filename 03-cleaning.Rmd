@@ -3,26 +3,26 @@
 ```{r, clean data}
 library(dplyr)
 
-NY_Jan_cleaning <- NY_Jan[,-32]
-NY_Jan_cleaning = filter(NY_Jan_cleaning, 
-                         is.na(NY_Jan_cleaning$AIR_TIME) == FALSE)
-Jan_19_cleaning <- Jan_19[,-31] %>% 
-  filter(is.na(AIR_TIME) == FALSE)
-
-
-NY_2019_cleaning <- NY_2019[, -32]
-NY_2019_cleaning <- filter(NY_2019_cleaning, 
-                      is.na(NY_2019_cleaning$AIR_TIME) == FALSE)
-NY_2020_cleaning <- NY_2020[, -32]
-NY_2020_cleaning <- filter(NY_2020_cleaning, 
-                      is.na(NY_2020_cleaning$AIR_TIME) == FALSE)
-NY_2021_cleaning <- NY_2021[, -32]
-NY_2021_cleaning <- filter(NY_2021_cleaning, 
-                      is.na(NY_2021_cleaning$AIR_TIME) == FALSE)
-
-NY_dec_cleaning <- NY_dec[, -32]
-NY_dec_cleaning <- filter(NY_dec_cleaning, 
-                      is.na(NY_dec_cleaning$AIR_TIME) == FALSE)
+# NY_Jan_cleaning <- NY_Jan[,-32]
+# NY_Jan_cleaning = filter(NY_Jan_cleaning, 
+#                          is.na(NY_Jan_cleaning$AIR_TIME) == FALSE)
+# Jan_19_cleaning <- Jan_19[,-31] %>% 
+#   filter(is.na(AIR_TIME) == FALSE)
+# 
+# 
+# NY_2019_cleaning <- NY_2019[, -32]
+# NY_2019_cleaning <- filter(NY_2019_cleaning, 
+#                       is.na(NY_2019_cleaning$AIR_TIME) == FALSE)
+# NY_2020_cleaning <- NY_2020[, -32]
+# NY_2020_cleaning <- filter(NY_2020_cleaning, 
+#                       is.na(NY_2020_cleaning$AIR_TIME) == FALSE)
+# NY_2021_cleaning <- NY_2021[, -32]
+# NY_2021_cleaning <- filter(NY_2021_cleaning, 
+#                       is.na(NY_2021_cleaning$AIR_TIME) == FALSE)
+# 
+# NY_dec_cleaning <- NY_dec[, -32]
+# NY_dec_cleaning <- filter(NY_dec_cleaning, 
+#                       is.na(NY_dec_cleaning$AIR_TIME) == FALSE)
 
 
 US_2019_cleaning <- US_2019[, -30] %>%
@@ -31,6 +31,8 @@ US_2019_cleaning <- US_2019[, -30] %>%
 US_2020_cleaning <- US_2020[, -30] %>%
   filter(is.na(AIR_TIME) == FALSE)
 
+a1901_cleaning <- a1901[,-30] %>%
+  filter(is.na(AIR_TIME) == FALSE)
 
 ```
 
