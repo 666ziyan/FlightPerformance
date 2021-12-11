@@ -189,6 +189,7 @@ ggplot(from_NY, aes(x=dep_gr, shape = year)) +
   scale_size_continuous(guide = "none")
 ```
 
+Next, we explore the difference among flights to different destinations. We divide them into groups by state in the following graph. The trend in the previous graph is still easy to see in this one- flights that depart later in a day tend to have longer average delay time, and that the on-time performance for flights in 2020 is significantly better than that in 2019. Note that flights to some destinations e.g. HI, MT, NM, are only provided in certain periods, which may caused by the distance and passenger volume.
 
 
 ```{r}
@@ -224,7 +225,10 @@ ggplot(from_NY_dest, aes(x=dep_gr)) +
   
 ```
 
-The plot shows the performance of flights from NY to other states within US. Almost all subgraphs indicate similar conclusions in the previous picture, i.e. flight performance of 2020 is obviously better than in 2019, and also late flights seem to performance worse than early flights. Note that flights to some destinations e.g. HI, MT, NM, are only provided in certain periods, which may caused by the distance and passenger volume.
+
+
+
+
 
 ```{r}
 library(stringr)
@@ -258,7 +262,7 @@ ggplot(from_NY_month, aes(x=dep_gr)) +
 
 ```
 
-The plot above shows flights performance in each months, which also yields the two conclusions mentioned berofe. Moreover, some other interesting observations are: (1) Note that in winter (Dec, Jan, Feb), flight performance is in general worse than in other seasons, especially for those late flights, which may due to the cold weather. (2) Season Fall seems to have the best flight performance.
+The plot above shows flights performance in each months, which also yields the two conclusions mentioned before. Moreover, some other interesting observations are: (1) in winter (Dec., Jan., Feb.), flight performance is in general worse than in other seasons, especially for those late flights, which may due to the cold weather. (2) Fall (Sept., Oct., Nov.) seems to have the best flight performance.
 
 ```{r}
 library(epade)
@@ -307,37 +311,64 @@ p2 <- bar3d.ade(t(tmp_data2), wall = 3, xw = 0.6, zw = 1.8, xlab = "month", ylab
 
 ```
 
-3D plot is more powerful to show the variation of a quantity grouped by multi-indexes.
+3D plot is more powerful to show the variation of a quantity grouped by multiple dimensions. Flights in June, July and August from 9pm to 12 pm have the longest average delay time.
 
-## NYC
-PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city?
+## Flights to Three Airports near NYC (JFK, LGA, EWR)
+<!-- PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city? -->
+
+Columbia University is located in the City of New York, and there are three major airports near the city, which are John F. Kennedy International Airport (JFK), LaGuardia Airport (LGA) and Newark Liberty International Airport (EWR). Suppose a person wants to travel to New York, how should he/she choose which airport to fliy to? We make a graph to illustrate the differnce, facet by each state that has flight towards the three airports.
 
 
 ```{r, to NYC problem}
 to_NYC_2019 <- US_2019_cleaning %>% 
   filter((DEST=='LGA') | (DEST=='JFK') | (DEST=='EWR')) %>%
   arrange(ORIGIN_STATE_ABR, CRS_DEP_TIME) %>%
-  group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), ORIGIN_STATE_ABR, DEST) %>%
+  # group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), ORIGIN_STATE_ABR, DEST) %>%
+  group_by(ORIGIN_STATE_ABR, DEST) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
-  arrange(dep_gr, ORIGIN_STATE_ABR)
-levels(to_NYC_2019$dep_gr) = time_lv_index
-
-ggplot(to_NYC_2019, aes(x=dep_gr)) + 
-  geom_point(aes(y = DEP_DELAY_Mean, color = ORIGIN_STATE_ABR)) + 
-  geom_hline(yintercept = 0, color = "#116530") + 
-  # scale_colour_manual(values=c('#DD4A48','#FBD148')) +
-  labs(x="CRS Departure Time", y="Average Departure Delay (min)", title='Flight Performance to NYC') +
-  facet_wrap(~DEST, ncol=4)
-
+  # arrange(dep_gr, ORIGIN_STATE_ABR)
+  arrange(ORIGIN_STATE_ABR)
+# levels(to_NYC_2019$dep_gr) = time_lv_index
 
 
 to_NYC_2020 <- US_2020_cleaning %>% 
-  filter((DEST=='LGA') | (DEST=='JFK')| (DEST=='EWR')) %>%
-  arrange(ORIGIN_STATE_ABR, CRS_DEP_TIME) %>%
-  group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), ORIGIN_STATE_ABR, DEST) %>%
+  filter((DEST=='LGA') | (DEST=='JFK') | (DEST=='EWR')) %>%
+  group_by(ORIGIN_STATE_ABR, DEST) %>%
   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
-  arrange(dep_gr, ORIGIN_STATE_ABR)
-levels(to_NYC_2020$dep_gr) = time_lv_index
+  arrange(ORIGIN_STATE_ABR)
+
+to_NYC_2019$year <- "2019"
+to_NYC_2020$year <- "2020"
+
+to_NYC <- rbind(to_NYC_2019, to_NYC_2020)
+
+
+ggplot(to_NYC, aes(x=DEST)) + 
+  geom_point(aes(y = DEP_DELAY_Mean, color = year)) + 
+  geom_hline(yintercept = 0, color = "#116530") + 
+  scale_colour_manual(values=c('#DD4A48','#FBD148')) +
+  labs(x="Destination Airport", y="Average Departure Delay (min)", title='Flight Performance to NYC') +
+  facet_wrap(~ORIGIN_STATE_ABR, ncol=10)
+
+
+
+# ggplot(to_NYC_2019, aes(x=DEST)) + 
+#   geom_point(aes(y = DEP_DELAY_Mean, color = DEST)) + 
+#   geom_hline(yintercept = 0, color = "#116530") + 
+#   # scale_colour_manual(values=c('#DD4A48','#FBD148')) +
+#   labs(x="CRS Departure Time", y="Average Departure Delay (min)", title='Flight Performance to NYC') +
+#   # facet_wrap(~DEST, ncol=4) +
+#   facet_wrap(~ORIGIN_STATE_ABR, ncol=10)
+
+
+
+# to_NYC_2020 <- US_2020_cleaning %>% 
+#   filter((DEST=='LGA') | (DEST=='JFK')| (DEST=='EWR')) %>%
+#   arrange(ORIGIN_STATE_ABR, CRS_DEP_TIME) %>%
+#   group_by(dep_gr = cut(CRS_DEP_TIME, breaks=seq(0, 2400, by=300)), ORIGIN_STATE_ABR, DEST) %>%
+#   summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+#   arrange(dep_gr, ORIGIN_STATE_ABR)
+# levels(to_NYC_2020$dep_gr) = time_lv_index
 
 # ggplot(to_NYC_2019, aes(x=DEST)) + 
 #   geom_point(aes(y = DEP_DELAY_Mean, color=ORIGIN_STATE_ABR)) + 
