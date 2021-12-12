@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyan Liu, Mingyue Xu" />
 
 
-<meta name="date" content="2021-12-09" />
+<meta name="date" content="2021-12-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -77,7 +77,12 @@
 <li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#compare-carriers-on-time-performance"><i class="fa fa-check"></i><b>5.1</b> Compare Carriers’ On-Time Performance</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#on-time-performance-accross-the-day"><i class="fa fa-check"></i><b>5.2</b> On-Time Performance Accross the Day</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#flights-to-three-airports-near-nyc-jfk-lga-ewr"><i class="fa fa-check"></i><b>5.3</b> Flights to Three Airports near NYC (JFK, LGA, EWR)</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -101,6 +106,12 @@
             <section class="normal" id="section-">
 <div id="data-sources" class="section level1" number="2">
 <h1><span class="header-section-number">Chapter 2</span> Data sources</h1>
+<p>We collect the data from the Bureau of Transportation Statistics. Ziyan Liu is in charge of pulling the datasets down from the website. Since we want to analyze flight delays, we select the “Aviation” mode in the data finder, find the database called “Airline On-Time Performance Data”, and download tables from “Marketing Carrier On-Time Performance (Beginning January 2018)” (<a href="https://www.transtats.bts.gov/DL_SelectFields.asp?gnoyr_VQ=FGK&amp;QO_fu146_anzr=b0-gvzr" class="uri">https://www.transtats.bts.gov/DL_SelectFields.asp?gnoyr_VQ=FGK&amp;QO_fu146_anzr=b0-gvzr</a>).</p>
+<p>It is nice that the website provides field selection feature, and we select 29 variables that we find useful in our project to include in the datasets. These variables include information about airline carriers, origins, destinations, departure and arrival time and delay situations of U.S. domestic flights. We download 24 tables in total, each containing flight information during one month from January 2019 to December 2020.</p>
+<p>‘YEAR’, ‘DAY_OF_WEEK’, ‘FL_DATE’ are the three variables that indicate the date of flights. ‘MKT_CARRIER_AIRLINE_ID’ is the identification number assigned by US DOT to identify a unique airline (carrier). ‘ORIGIN’, ‘ORIGIN_CITY_NAME’, ‘ORIGIN_STATE_ABR’ are the abbreviation of origin airport, origin city name, and the abbreviation of origin state. ‘DEST’, ‘DEST_CITY_NAME’, ‘DEST_STATE_ABR’ contain information similarly for the destination. ‘CRS_DEP_TIME’ is the CRS departure time of flight, ‘DEP_TIME’ is the actual departure time, ‘DEP_DELAY’ is the departure delay time in minutes, where negative numbers indicate early departure, and ‘DEP_DELAY_NEW’ is the same with ‘DEP_DELAY’ except negative numbers are replaced by 0. Arrival information are encoded in the ‘ARR’ variables similarly. ‘CANCELLED’ indicates if the flight is cancelled, where 1 means it is, and ‘CANCELLATION_CODE’ specifies reasons for cancellation. ‘CRS_ELAPSED_TIME’ is the estimated elapsed time of flight in minutes, ‘ACTUAL_ELAPSED_TIME’ is the actual time, and ‘AIR_TIME’ is the flight time. ‘DISTANCE’ gives the distance between airports in miles. Lastly, ‘CARRIER_DELAY’, ‘WEATHER_DELAY’, ‘NAS_DELAY’, ‘SECURITY_DELAY’ and ‘LLATE_AIRCRAFT_DELAY’ are the causes of delay in minutes.</p>
+<p>The datasets before March 2020 contain about 650,000 records per month, and there is a significant drop after March 2020, obviously due to the pandemic, where each contains about 350,000 records. In total, there are 8,066,815 and 5,022,397 records of U.S. domestic flights respectively in 2019 and 2020.</p>
+<p>The datasets contain very detailed information and statistics. We found that, however, there are flights that did not fly and are NA’s in the tables, and that some flights are delayed, but no specific reasons are given.
+<!-- It causes some mismatch when we analyze the reasons that cause flight delays. --></p>
 
 </div>
             </section>

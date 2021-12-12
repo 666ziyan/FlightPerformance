@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyan Liu, Mingyue Xu" />
 
 
-<meta name="date" content="2021-12-09" />
+<meta name="date" content="2021-12-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -77,7 +77,12 @@
 <li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#compare-carriers-on-time-performance"><i class="fa fa-check"></i><b>5.1</b> Compare Carriers’ On-Time Performance</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#on-time-performance-accross-the-day"><i class="fa fa-check"></i><b>5.2</b> On-Time Performance Accross the Day</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#flights-to-three-airports-near-nyc-jfk-lga-ewr"><i class="fa fa-check"></i><b>5.3</b> Flights to Three Airports near NYC (JFK, LGA, EWR)</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -102,8 +107,9 @@
 <div id="missing-values" class="section level1" number="4">
 <h1><span class="header-section-number">Chapter 4</span> Missing values</h1>
 <p><img src="finalproj_files/figure-html/missing%20patterns-1.png" width="672" /></p>
-<p>Above is a plot of missing patterns and count of missing values. We can see that the variable <code>x</code> is missing in all rows, so we can remove it from our dataset. Further, more than 90% of data follows the top missing pattern as shown in the plot. The variables <code>CARRIER_DELAY</code>, <code>LATE_AIRCRAFT_DELAY</code>, <code>NAS_DELAY</code>, <code>SECURITY_DELAY</code> and <code>WEATHER_DELAY</code> are missing in this pattern, indicating that these flights did not delay. In the second most frequent missing pattern, these variables have non-NA values. It implies that the flight was delayed and the delay time due to these reasons are shown in the dataset.</p>
-<p>The bottom three missing patterns are much less frequent than the other two. The missing values in <code>ARR_TIME</code>, <code>DEP_TIME</code> cause the missing in <code>ARR_DELAY</code> and <code>DEP_DELAY</code> respectively, and it may be caused by cancellation of flights, or may be caused by errors in the data collection. Fortunately, such incomplete samples only take up a small proportion, thus having little effect on data analysis.</p>
+<p>Above is a plot of missing patterns and count of missing values. We can see that the variable <code>x</code> is missing in all rows, so we can remove it from our dataset. Further, approximately 80% of data follows the top missing pattern as shown in the plot. The variables <code>CARRIER_DELAY</code>, <code>LATE_AIRCRAFT_DELAY</code>, <code>NAS_DELAY</code>, <code>SECURITY_DELAY</code> and <code>WEATHER_DELAY</code> are missing in this pattern, indicating that these flights did not have a delay reason. In the second most frequent missing pattern, these variables have non-NA values. It implies that the flight was delayed and the delay time due to these reasons are shown in the dataset.</p>
+<p>The bottom four missing patterns are much less frequent than the top two. The missing values in <code>ARR_TIME</code>, <code>DEP_TIME</code> cause the missing in <code>ARR_DELAY</code> and <code>DEP_DELAY</code> respectively, and it may be caused by cancellation of flights, or may be caused by errors in the data collection. Fortunately, such incomplete samples only take up a small proportion, thus having little effect on data analysis.</p>
+<p>According to the result of missing pattern plotting, we would like to clean the worthless column <code>x</code>, and also those incomplete data points, which has some delay-irrelevant features being NA values.</p>
 
 </div>
             </section>
