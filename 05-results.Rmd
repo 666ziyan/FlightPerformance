@@ -1,5 +1,23 @@
 # Results
 
+
+
+
+
+Introduction:
+We would like to choose the topic related to the flight performance in U.S., more precisely, the time performance (arrival or departure delays) with respect to different settings of airlines, seasons, destinations, departure time, etc. The experience we learned from the observed data will help us make more reasonable decisions in choosing travelling modes, for example, one may be interested in which airline, which airport, when and where is the best combination for travelling from NYC. Such concerns are closely related to daily life and thus the data analysis is of great significance. Concretely, we will investigate the following three problems:
+
+1) Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes. Indeed, there are different delay reasons such like *CARRIER DELAY*, *WEATHER DELAY*, *AIRCRAFT DELAY*, etc., and airlines may performance differently with respect to a specific delay reason. Furthermore, delay count and delay time are both reasonable measures to the time performance, and should be analyzed respectively, but combined when making decisions.
+
+2) Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance? Flight performance may be affected by many environmental factors such as seasons, departure time, weather, etc., thus being intricate and hard to analyze. However, visualization can greatly help us in clearing up those relations and variable controlled analysis will assist the decision making in the following problem3.
+
+3) Specifically for NYC. If someone wants to come to NYC, which airport should he/she choose to fly to based on the origin city? Based on the experience we learned from past in problem1 and problem2, more reasonable decisions can be made for travelling from NYC under different factor settings. The goal is to avoid delays and save time, which is helpful in both business travel and leisure travel. 
+
+
+
+
+
+
 <!-- PROBLEM ONE: Among all the carriers that provide commercial services in U.S., are there any carriers that have major delay problems? For example, the average delay time is over 60 minutes. -->
 
 
@@ -8,24 +26,40 @@ As we can see from the figure below, `Delta Air Lines Inc.` have over 3,000 flig
 
 
 
+
+```{r}
+library(stringr)
+Airline_ID = read.csv("~/Desktop/L_AIRLINE_ID.csv")
+Airline_ID$AIRLINE <- str_split_fixed(Airline_ID$Description, ": ", n=2)[,2]
+```
+
 ```{r, airline delay count}
 library(ggplot2)
+
+
 data1 = a1901_cleaning %>%
   filter(is.na(CARRIER_DELAY) == FALSE) %>%
   filter(ORIGIN_STATE_ABR == 'NY')
 # data1 = filter(NY_Jan_cleaning,
 #                is.na(NY_Jan_cleaning$CARRIER_DELAY) == FALSE)
+
   
 delayCount <- data1 %>%
   count(data1$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
 delayCount$CARRIER_AIRLINE_ID <- format(delayCount$`data1$MKT_CARRIER_AIRLINE_ID`)
-delayCount <- delayCount %>% 
-  mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
+
 delayCount <- delayCount[, -1]
-ggplot(data = delayCount, mapping = aes(x = CARRIER_AIRLINE_ID, 
-                                        y = count)) +
+for (i in 1:nrow(delayCount)) {
+  delayCount$AIRLINE[i] <- Airline_ID$AIRLINE[which(Airline_ID$Code == delayCount$CARRIER_AIRLINE_ID[i])]
+}
+delayCount <- delayCount %>% 
+  mutate(AIRLINE = factor(AIRLINE, levels = rev(AIRLINE[order(count)])))
+
+ggplot(data = delayCount, mapping = aes(x = AIRLINE, y = count)) +
   geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
+
   labs(x = "Carrier Airline ID", y = 'Delay Count', title='Number of Delays in Jan. 2019 from and to NY')
+
 ```
 
 <!-- The dataframe `NY_Jan_delayCount` shows the number of delays for each carrier within January. We plot a simple bar graph to manifest the result more explicitly. Note that this figure only shows the number of times that the delay occurs, on the other side, we need to evaluate the averaged severity of the delays, i.e. the averaged time of the delays for each carrier. -->
@@ -44,11 +78,14 @@ delayAverage <- delayAverage %>%
 
 delayAverage$CARRIER_AIRLINE_ID <- format(delayAverage$`delayAverage$MKT_CARRIER_AIRLINE_ID`)
 
-delayAverage <- delayAverage %>% 
-  mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayMean)])))
 delayAverage <- delayAverage[, -1]
+for (i in 1:nrow(delayAverage)) {
+  delayAverage$AIRLINE[i] <- Airline_ID$AIRLINE[which(Airline_ID$Code == delayAverage$CARRIER_AIRLINE_ID[i])]
+}
+delayAverage <- delayAverage %>% 
+  mutate(AIRLINE = factor(AIRLINE, levels = rev(AIRLINE[order(delayMean)])))
 
-ggplot(data = delayAverage, mapping = aes(x = CARRIER_AIRLINE_ID, y = delayMean)) +
+ggplot(data = delayAverage, mapping = aes(x = AIRLINE, y = delayMean)) +
   geom_bar(stat = 'identity', fill = ifelse(delayAverage$delayMean >= 60, '#95D1CC', '#577BC1'), color = '#161853') +
   geom_text(aes(label=round(delayMean, 2)), position=position_dodge(width=0.9), vjust=-0.25) +
   labs(x = "Carrier Airline ID", y = 'Average Delay Time (min)', title='Average Delay Time for Each Carrier Airline')
@@ -68,6 +105,7 @@ The second most common reason is `NAS_DELAY`, i.e., national air system delay, b
 
 Among all 5 reasons, `SECURITY_DELAY` is the rarest, and only occurs 15 times. Therefore, we do not discuss this reason in detail.
 
+
 ```{r, delay reason}
 library(dplyr)
 library(tidyverse)
@@ -81,14 +119,18 @@ for (i in 1:5) {
   delayDetailCount <- delayDetail %>%
     count(delayDetail$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
   delayDetailCount$CARRIER_AIRLINE_ID <- format(delayDetailCount$`delayDetail$MKT_CARRIER_AIRLINE_ID`)
-  delayDetailCount <- delayDetailCount %>% 
-    mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(count)])))
   delayDetailCount <- delayDetailCount[, -1]
+  for (j in 1:nrow(delayDetailCount)) {
+    delayDetailCount$AIRLINE[j] <- Airline_ID$AIRLINE[which(Airline_ID$Code == delayDetailCount$CARRIER_AIRLINE_ID[j])]
+  }
+  delayDetailCount <- delayDetailCount %>% 
+    mutate(AIRLINE = factor(AIRLINE, levels = rev(AIRLINE[order(count)])))
   p1 <- ggplot(data = delayDetailCount, 
-               mapping = aes(x = CARRIER_AIRLINE_ID, y = count)) +
+               mapping = aes(x = AIRLINE, y = count)) +
     geom_bar(stat = 'identity', fill = '#FFAFAF', color = '#5584AC') +
     labs(x = "ID", y = 'COUNT') + 
     ggtitle(paste(colnames(delayDetails)[i+24], 'COUNT'))
+
   
   delayDetailAverage <- delayDetail
   delayDetailAverage$delayDetailCopy <- delayDetailAverage[,(i+24)]
@@ -96,20 +138,23 @@ for (i in 1:5) {
     group_by(delayDetailAverage$MKT_CARRIER_AIRLINE_ID) %>%
     summarise(delayDetailMean = mean(delayDetailCopy))
   delayDetailAverage$CARRIER_AIRLINE_ID <- format(delayDetailAverage$`delayDetailAverage$MKT_CARRIER_AIRLINE_ID`)
-  delayDetailAverage <- delayDetailAverage %>% 
-    mutate(CARRIER_AIRLINE_ID = factor(CARRIER_AIRLINE_ID, levels = rev(CARRIER_AIRLINE_ID[order(delayDetailMean)])))
   delayDetailAverage <- delayDetailAverage[, -1]
+  for (k in 1:nrow(delayDetailAverage)) {
+    delayDetailAverage$AIRLINE[k] <- Airline_ID$AIRLINE[which(Airline_ID$Code == delayDetailAverage$CARRIER_AIRLINE_ID[k])]
+  }
+  delayDetailAverage <- delayDetailAverage %>% 
+    mutate(AIRLINE = factor(AIRLINE, levels = rev(AIRLINE[order(delayDetailMean)])))
   p2 <- ggplot(data = delayDetailAverage, 
-               mapping = aes(x = CARRIER_AIRLINE_ID, 
+               mapping = aes(x = AIRLINE, 
                              y=delayDetailMean)) +
     geom_bar(stat = 'identity', 
              fill = ifelse(delayDetailAverage$delayDetailMean >= 60,
                            '#95D1CC', '#577BC1'), color = '#161853') +
     geom_text(aes(label=round(delayDetailMean, 2)), 
-              position=position_dodge(width=0.6), vjust=-0.25) +
-
+              position=position_dodge(width=0.4), vjust=-0.25) +
     labs(x = "ID", y = 'AVE_TIME') + 
     ggtitle(paste(colnames(delayDetails)[i+24],'AVE_TIME'))
+
   
   p1 | p2
   p <- p1 + p2 + plot_layout(ncol = 2)
@@ -127,6 +172,97 @@ for (i in 1:5) {
   
 }
 ```
+
+As we can see, both delay count and delay time are reasonable measures to the on-time performance of flight and need to be combine when choosing airlines. 
+
+```{r}
+data_tile = delayCount[,-2]
+data_tile$delaycount <- "delaycount"
+data_tile = data_tile[, c(3,2,1)]
+data_tile = dcast(data_tile, delaycount~AIRLINE)
+data_tile = rename(data_tile, "factor" = "delaycount")
+
+data_tile_time = delayAverage[,-2]
+data_tile_time$delaytime <- "delaytime"
+data_tile_time = data_tile_time[, c(3,2,1)]
+data_tile_time = dcast(data_tile_time, delaytime~AIRLINE)
+data_tile_time = rename(data_tile_time, "factor" = "delaytime")
+data_tile_time = data_tile_time[, c(1,2,6,5,4,8,9,7,3,10,11)]
+data_tile = rbind(data_tile, data_tile_time)
+
+delayreasons <- c("carrier_delaycount","carrier_delaytime","weather_delaycount","weather_delaytime","nas_delaycount","nas_delaytime","security_delaycount","security_delaytime","aircraft_delaycount","aircraft_delaytime")
+for (i in 1:5) {
+  delayDetail = filter(delayDetails, delayDetails[,(i+26)] != 0)
+  delayDetailCount <- delayDetail %>%
+    count(delayDetail$MKT_CARRIER_AIRLINE_ID, name = "count", sort = TRUE)
+  delayDetailCount$CARRIER_AIRLINE_ID <- format(delayDetailCount$`delayDetail$MKT_CARRIER_AIRLINE_ID`)
+  delayDetailCount <- delayDetailCount[, -1]
+  for (j in 1:nrow(delayDetailCount)) {
+    delayDetailCount$AIRLINE[j] <- Airline_ID$AIRLINE[which(Airline_ID$Code == delayDetailCount$CARRIER_AIRLINE_ID[j])]
+  }
+  delayDetailCount = delayDetailCount[,-2]
+  delayDetailCount$reason <- delayreasons[2*i-1]
+  delayDetailCount = delayDetailCount[, c(3,2,1)]
+  delayDetailCount = dcast(delayDetailCount, reason~AIRLINE)
+  delayDetailCount = rename(delayDetailCount, "factor" = "reason")
+  factor <- c(delayreasons[2*i-1])
+  dataappend = data.frame(factor)
+  for (key in colnames(data_tile)) {
+    if (key %in% colnames(delayDetailCount) == TRUE) {
+      dataappend = cbind(dataappend, subset(delayDetailCount, select=c(key)))
+    } else {
+      lostdata = subset(data_tile, select=c(key))
+      lostdata[,1] = 0
+      dataappend = cbind(dataappend, lostdata)
+      dataappend = dataappend[1,]
+    }
+  }
+  data_tile = rbind(data_tile, dataappend[, 2:12])
+  
+  delayDetailAverage <- delayDetail
+  delayDetailAverage$delayDetailCopy <- delayDetailAverage[,(i+26)]
+  delayDetailAverage <- delayDetailAverage %>%
+    group_by(delayDetailAverage$MKT_CARRIER_AIRLINE_ID) %>%
+    summarise(delayDetailMean = mean(delayDetailCopy))
+  delayDetailAverage$CARRIER_AIRLINE_ID <- format(delayDetailAverage$`delayDetailAverage$MKT_CARRIER_AIRLINE_ID`)
+  delayDetailAverage <- delayDetailAverage[, -1]
+  for (k in 1:nrow(delayDetailAverage)) {
+    delayDetailAverage$AIRLINE[k] <- Airline_ID$AIRLINE[which(Airline_ID$Code == delayDetailAverage$CARRIER_AIRLINE_ID[k])]
+  }
+  delayDetailAverage = delayDetailAverage[,-2]
+  delayDetailAverage$reason <- delayreasons[2*i]
+  delayDetailAverage = delayDetailAverage[, c(3,2,1)]
+  delayDetailAverage = dcast(delayDetailAverage, reason~AIRLINE)
+  delayDetailAverage = rename(delayDetailAverage, "factor" = "reason")
+  factor <- c(delayreasons[2*i])
+  dataappend = data.frame(factor)
+  for (key in colnames(data_tile)) {
+    if (key %in% colnames(delayDetailAverage) == TRUE) {
+      dataappend = cbind(dataappend, subset(delayDetailAverage, select=c(key)))
+    } else {
+      lostdata = subset(data_tile, select=c(key))
+      lostdata[,1] = 0
+      dataappend = cbind(dataappend, lostdata)
+      dataappend = dataappend[1,]
+    }
+  }
+  data_tile = rbind(data_tile, dataappend[, 2:12])
+}
+
+data_tile = data_tile %>%
+  mutate(sum = rowSums(.[2:11]))
+for (col in 2:11) {
+  data_tile[,col] <- data_tile[,col] / data_tile$sum
+}
+data_tile = data_tile[, -12]
+
+data_tile_m <- melt(data_tile, id.vars=c("factor"))
+ggplot(data_tile_m, aes(x=factor, y=variable, fill=value)) +
+  geom_tile(color = "black") +
+  theme(axis.text.x = element_text(size = rel(1), angle=90, hjust=1, vjust=1))
+```
+
+
 
 
 
