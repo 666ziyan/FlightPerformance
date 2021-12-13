@@ -24,7 +24,7 @@
 <meta name="author" content="Ziyan Liu, Mingyue Xu" />
 
 
-<meta name="date" content="2021-12-12" />
+<meta name="date" content="2021-12-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -106,7 +106,6 @@
             <section class="normal" id="section-">
 <div id="interactive-component" class="section level1" number="6">
 <h1><span class="header-section-number">Chapter 6</span> Interactive component</h1>
-<p>&lt;&lt;insertHTML:[flight_choice.html]</p>
 <!DOCTYPE html>  
 <html lang="en">  
     <head>  
@@ -128,46 +127,49 @@
     </head>  
       
     <body>  
-      <h1>Flight Choice to NYC</h1>
+      <h1>Flight Choice to NY</h1>
      
       <form>
-        <label for="mon">Enter the month you want to travel (e.g. "03" for March):</label>
+        <label for="mon">Enter the month you want to travel (e.g. 03 for March):</label>
         <input type="text" id="mon" name="mon"><br><br>
       
-        <label for="origin">Enter your origin state abbreviation (e.g. "PA" for Pennsylvania):</label>
+        <label for="origin">Enter your origin state abbreviation (e.g. PA for Pennsylvania):</label>
         <input type="text" id="origin" name="origin"><br><br>
-        <input type="submit" value="Submit">
+        <button type="button" id="bt" onclick="anime()">See Results</button>
       </form>
       
       <figure>
-        <figcaption>Average Delay Time to Airports near NYC</figcaption>
-        <svg class="chart" width="800" height="450" aria-labelledby="title" role="img">
+        <figcaption>Average Delay Time to NY</figcaption>
+        <svg class="chart" width="800" height="550" aria-labelledby="title" role="img">
           <title id="title">information</title>
           <g class="grid x-grid" id="xGrid">
-            <line x1="90" x2="90" y1="5" y2="370" stroke="black"></line>
+            <line x1="90" x2="90" y1="5" y2="480" stroke="black"></line>
           </g>
           <g class="grid y-grid" id="yGrid">
-            <line x1="90" x2="650" y1="370" y2="370" stroke="black"></line>
+            <line x1="90" x2="650" y1="480" y2="480" stroke="black"></line>
           </g>
           <g class="labels x-labels">
-            <text x="100" y="385">3am~6am</text>
-            <text x="180" y="385">6am~9am</text>
-            <text x="260" y="385">9am~12pm</text>
-            <text x="340" y="385">12pm~3pm</text>
-            <text x="420" y="385">3pm~6pm</text>
-            <text x="500" y="385">6pm~9pm</text>
-            <text x="580" y="385">9pm~12am</text>
-            <text x="300" y="415" class="label-title">CRS Departure Time</text>
+            <text x="100" y="495">3am~6am</text>
+            <text x="180" y="495">6am~9am</text>
+            <text x="260" y="495">9am~12pm</text>
+            <text x="340" y="495">12pm~3pm</text>
+            <text x="420" y="495">3pm~6pm</text>
+            <text x="500" y="495">6pm~9pm</text>
+            <text x="580" y="495">9pm~12am</text>
+            <text x="300" y="515" class="label-title">CRS Departure Time</text>
           </g>
           <g class="labels y-labels">
-            <text x="60" y="20">40</text>
-            <text x="60" y="80">30</text>
-            <text x="60" y="140">20</text>
-            <text x="60" y="200">10</text>
-            <text x="60" y="260">0</text>
-            <text x="60" y="320">-10</text>
-            <text x="60" y="380">-20</text>
-            <text x="10" y="180" class="label-title">Delay</text>
+            <text x="60" y="20">70</text>
+            <text x="60" y="70">60</text>
+            <text x="60" y="120">50</text>
+            <text x="60" y="170">40</text>
+            <text x="60" y="220">30</text>
+            <text x="60" y="270">20</text>
+            <text x="60" y="320">10</text>
+            <text x="60" y="370">0</text>
+            <text x="60" y="420">-10</text>
+            <text x="60" y="470">-20</text>
+            <text x="10" y="240" class="label-title">Delay</text>
           </g>
           <g class="data" data-setname="avg delay data">
             <circle cx="130" cy="350" id="dep1" r="4" fill="#DD4A48"></circle>
@@ -177,7 +179,7 @@
             <circle cx="450" cy="104" id="dep5" r="4" fill="#DD4A48"></circle>
             <circle cx="530" cy="200" id="dep6" r="4" fill="#DD4A48"></circle>
             <circle cx="610" cy="104" id="dep7" r="4" fill="#DD4A48"></circle>
-            
+            <line x1="90"x2="650" y1="365" y2="365" stroke="#116530" stroke-width="2"></line></line>
             <circle cx="130" cy="330" id="arr1" r="4" fill="#064663"></circle>
             <circle cx="210" cy="198" id="arr2" r="4" fill="#064663"></circle>
             <circle cx="290" cy="290" id="arr3" r="4" fill="#064663"></circle>
@@ -206,8 +208,55 @@
         
         <script>  
             // JavaScript / D3 will go here
-            d3.select("#dep1")
-            .transition().duration(3000).style("cy", "250");
+            function get_y(t) {
+              return -5*t+370-5;
+            }
+            
+            
+            function anime() {
+              var month = document.getElementById("mon");
+              var origin = document.getElementById("origin");
+              console.log("month =", month.value, "origin =", origin.value)
+                          
+              d3.csv("https://raw.githubusercontent.com/666ziyan/5702final/main/collections.csv", function(d) {
+                return {
+                  t1 : +d["X3am.6am"],
+                  t2 : +d["X6am.9am"],
+                  t3 : +d["X9am.12pm"],
+                  t4 : +d["X12pm.3pm"],
+                  t5 : +d["X3pm.6pm"],
+                  t6 : +d["X6pm.9pm"],
+                  t7 : +d["X9pm.12am"],
+                  or : d["origin"],
+                  m : d["month"]
+                };
+              })
+              .then(function(data) {
+                for (var k = 1; k < 960; k++) {
+                  if(month.value == (data[k].m) && origin.value==(data[k].or)) {
+                    d = data[k];
+                    var t = [d["t1"], d["t2"], d["t3"], d["t4"], d["t5"],d["t6"],d["t7"]];
+                    break;
+                  }
+                }
+                // d = data[1];
+                // var t = [d["t1"], d["t2"], d["t3"], d["t4"], d["t5"],d["t6"],d["t7"]];
+                d1 = data[k+1];
+                var ta = [d1["t1"],d1["t2"],d1["t3"],d1["t4"],d1["t5"],d1["t6"],d1["t7"]];
+                
+                for (let i = 1; i < 8; i++) {
+                  d3.select("#dep"+i)
+                  .transition().duration(3000).style("cy", get_y(t[i-1]).toString());
+                  d3.select("#arr"+i)
+                  .transition().duration(3000).style("cy",get_y(ta[i-1]).toString());
+                }
+              })
+              
+              
+            }
+            
+            
+            
         </script>  
           
     </body>

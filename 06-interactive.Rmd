@@ -1,16 +1,6 @@
 # Interactive component
 
-
-<<insertHTML:[flight_choice.html]
-
-
 ```{r, echo=FALSE}
 htmltools::includeHTML("flight_choice.html")
 ```
-
-
-
-
-
-
 
