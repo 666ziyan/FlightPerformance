@@ -22,23 +22,10 @@
       <h1>Flight Choice to NYC</h1>
      
       <form>
-        <label for="mon">Choose the month you want to travel:</label>
-        <select name='mon' id='mon'>
-          <OPTION Value="Jan">January</OPTION>
-          <OPTION Value="Feb">Febuary</OPTION>
-          <OPTION Value="Mar">March</OPTION>
-          <OPTION Value="Apr">April</OPTION>
-          <OPTION Value="May">May</OPTION>
-          <OPTION Value="Jun">June</OPTION>
-          <OPTION Value="Jul">July</OPTION>
-          <OPTION Value="Aug">August</OPTION>
-          <OPTION Value="Sept">September</OPTION>
-          <OPTION Value="Oct">October</OPTION>
-          <OPTION Value="Nov">November</OPTION>
-          <OPTION Value="Dec">December</OPTION>
-        </select><br><br>
+        <label for="mon">Enter the month you want to travel (e.g. "03" for March):</label>
+        <input type="text" id="mon" name="mon"><br><br>
       
-        <label for="origin">Enter your origin state abbreviation (eg. PA):</label>
+        <label for="origin">Enter your origin state abbreviation (e.g. "PA" for Pennsylvania):</label>
         <input type="text" id="origin" name="origin"><br><br>
         <input type="submit" value="Submit">
       </form>
@@ -93,6 +80,10 @@
           
           <g class="legend">
             <rect x="690" y="140" width="100" height="40" fill="aliceblue"></rect>
+            <line x1="690" x2="690" y1="140" y2="180" stroke="black"></line>
+            <line x1="790" x2="790" y1="140" y2="180" stroke="black"></line>
+            <line x1="690" x2="790" y1="140" y2="140" stroke="black"></line>
+            <line x1="690" x2="790" y1="180" y2="180" stroke="black"></line>
             <circle cx="700" cy="150" r="4" fill="#DD4A48"></circle>
             <text x="710" y="155">Departure</text>
             <circle cx="700" cy="170" r="4" fill="#064663"></circle>
@@ -106,9 +97,8 @@
         
         <script>  
             // JavaScript / D3 will go here
-            //d3.select("#id3")  
-            //.transition().duration(3000).style("color", "red")  
-            //.transition().duration(3000).style("font-size", "24px");
+            d3.select("#dep1")
+            .transition().duration(3000).style("cy", "250");
         </script>  
           
     </body>

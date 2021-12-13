@@ -12,12 +12,19 @@ As we can see from the figure below, `DL (Delta Air Lines Inc.)` have over 3,000
 
 ```{r}
 library(stringr)
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(gridExtra)
+library(patchwork)
+library(epade)
 Airline_ID = read.csv("~/Desktop/L_AIRLINE_ID.csv")
 Airline_ID$AIRLINE <- str_split_fixed(Airline_ID$Description, ": ", n=2)[,2]
 ```
 
 ```{r, airline delay count}
-library(ggplot2)
+
 data = a1901_cleaning %>%
   filter(ORIGIN_STATE_ABR == 'NY')
 
@@ -109,10 +116,6 @@ Among all 5 reasons, `SECURITY_DELAY` is the rarest, and only occurs 15 times. T
 
 
 ```{r, delay reason}
-library(dplyr)
-library(tidyverse)
-library(gridExtra)
-library(patchwork)
 delayDetails <- data1
 # setwd("~/Desktop")
 # changed 26 to 24!!
@@ -370,7 +373,6 @@ ggplot(from_NY_dest, aes(x=dep_gr)) +
 
 
 ```{r}
-library(stringr)
 from_NY_2019_month <- US_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
@@ -404,9 +406,6 @@ ggplot(from_NY_month, aes(x=dep_gr)) +
 The plot above shows flights performance in each months, which also yields the two conclusions mentioned before. Moreover, some other interesting observations are: (1) in winter (Dec., Jan., Feb.), flight performance is in general worse than in other seasons, especially for those late flights, which may due to the cold weather. (2) Fall (Sept., Oct., Nov.) seems to have the best flight performance.
 
 ```{r}
-library(epade)
-library(reshape2)
-
 from_NY_2019_allu <- US_2019_cleaning %>%
   filter((ORIGIN_CITY_NAME=='New York, NY') ) %>%
   arrange(CRS_DEP_TIME) %>%
