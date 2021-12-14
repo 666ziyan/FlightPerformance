@@ -1,8 +1,10 @@
 # Interactive component
 
+
 ```{r, echo=FALSE}
 htmltools::includeHTML("flight_choice.html")
 ```
+
 
 We create an interactive webpage to allow user to check the on-time performance of flights at difference time of a day, as we have shown a plot in our problem2 as a static result. Here in the plot, the points are able to move dynamic according to the information `month` and `origin` the user chooses. The reason we build this webpage is that there are twelve months in a year and about 40 origin states in US, one will need to create approximately 1000 static plots to show all the results, which turns to be inefficient and space occupying. Interactive webpage addresses this challenge, thus adding up to a better experience overall for readers.
 
