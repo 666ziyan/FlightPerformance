@@ -269,7 +269,7 @@ ggplot(data_tile_m, aes(x=factor, y=variable, fill=value)) +
 ```
 
 
-The heatmap above shows normalized value of delay count and time of the airline carriers for all five reasons. In each column, we can see which carrier has most delay flights and longest average delay time. For instance, `DL` has most flights delayed for aircraft reason, and `HA` has the longest delay time for the reason.
+The heatmap above shows normalized value of delay count and time of the airline carriers in total and also for all five reasons, respectively. In each column, we can see which carrier has most delay flights and longest average delay time by inspecting the color depth. For instance, `DL` has most flights delayed for aircraft reason, and `HA` has the longest average delay time. As for some specific delay reasons, the heatmap also provides similar information, e.g. `AA` may have the longest average delay time for the reason of security. Heatmap provides us an efficient tool to make decision on flight when considering more details in comprehension, which will be discussed later in our problem3.
 
 
 <!-- PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance? -->
@@ -486,7 +486,8 @@ ggplot(to_NYC, aes(x=DEST)) +
   geom_hline(yintercept = 0, color = "#116530") + 
   scale_colour_manual(values=c('#DD4A48','#FBD148')) +
   labs(x="Destination Airport", y="Average Departure Delay (min)", title='Flight Performance to NYC') +
-  facet_wrap(~ORIGIN_STATE_ABR, ncol=10)
+  facet_wrap(~ORIGIN_STATE_ABR, ncol=10) +
+  theme(axis.text.x = element_text(size = rel(1), angle=90, hjust=1, vjust=1))
 
 
 
@@ -520,20 +521,40 @@ ggplot(to_NYC, aes(x=DEST)) +
 # DISTANCE / ACTUAL_ELAPSED_TIME
 # or AIR_TIME
 
-airline_19 <- US_2019_cleaning %>%
-  group_by(MKT_CARRIER_AIRLINE_ID) %>%
-  mutate(speed = DISTANCE / AIR_TIME *60) %>%
-  summarise_at(vars(DEP_DELAY, ARR_DELAY, speed), 
-               list(Mean=mean))
+to_NYC_2019_speed <- US_2019_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK') | (DEST=='EWR')) %>%
+  arrange(ORIGIN_STATE_ABR, CRS_DEP_TIME) %>%
+  group_by(ORIGIN_STATE_ABR, DEST, MKT_CARRIER_AIRLINE_ID) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  arrange(ORIGIN_STATE_ABR)
 
-# ggplot(airline_19) + 
-#   geom_point(aes(x=MKT_CARRIER_AIRLINE_ID, y=speed_Mean)) +
-#   labs(x="Carrier ID", y="Average Speed (mph)", 
-#        title = "Average Speed of US Domestic Flights")
+to_NYC_2020_speed <- US_2020_cleaning %>% 
+  filter((DEST=='LGA') | (DEST=='JFK') | (DEST=='EWR')) %>%
+  group_by(ORIGIN_STATE_ABR, DEST, MKT_CARRIER_AIRLINE_ID) %>%
+  summarise_at(vars(DEP_DELAY, ARR_DELAY), list(Mean=mean)) %>%
+  arrange(ORIGIN_STATE_ABR)
+
+to_NYC_2019_speed$year <- "2019"
+to_NYC_2020_speed$year <- "2020"
+to_NYC_speed <- rbind(to_NYC_2019_speed, to_NYC_2020_speed)
+
+to_NYC_speed$CARRIER_AIRLINE_ID <- format(to_NYC_speed$MKT_CARRIER_AIRLINE_ID)
+to_NYC_speed <- to_NYC_speed[, -3]
+for (i in 1:nrow(to_NYC_speed)) {
+  to_NYC_speed$AIRLINE[i] <- Airline_ID$AIRLINE[which(Airline_ID$Code == to_NYC_speed$CARRIER_AIRLINE_ID[i])]
+}
+
+
+ggplot(to_NYC_speed, aes(x=ORIGIN_STATE_ABR, y=AIRLINE, fill=DEP_DELAY_Mean)) +
+  geom_tile(color = "pink") +
+  theme(axis.text.x = element_text(size = rel(1), angle=90, hjust=1, vjust=1)) +
+  labs(x="Origin State", y="Airline", title='Airline Performance to NYC') +
+  facet_wrap(~DEST, ncol=1)
+
 
 ```
 
-
+Here again, we apply a tool of heatmap to assist a visitor to NYC with the optimal flight choice. Note that our previous plot only provides an averaged time delay from some origin state over three airports, but not specified to different airlines, hence not enough to guide the user to all details in choosing flights. However, to include the information of airlines, there are in total four variables in our data, which may be hard to present by using scatter plot or bar plot. The heatmap uses color depth to reflect the value of averaged delay time with respect to origin state and airline. As we can see in the plot, for example, if you are a visitor from `KY` to NYC, then the best choice, with all things considered, may be the airline `F9` and the airport `LGA`.
 
 
 

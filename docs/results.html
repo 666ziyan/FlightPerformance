@@ -123,7 +123,7 @@
 <p><img src="finalproj_files/figure-html/delay%20reason-1.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-2.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-3.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-4.png" width="672" /><img src="finalproj_files/figure-html/delay%20reason-5.png" width="672" /></p>
 <p>As we can see, both delay count and delay time are reasonable measures to the on-time performance of flight and need to be combine when choosing airlines.</p>
 <p><img src="finalproj_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<p>The heatmap above shows normalized value of delay count and time of the airline carriers for all five reasons. In each column, we can see which carrier has most delay flights and longest average delay time. For instance, <code>DL</code> has most flights delayed for aircraft reason, and <code>HA</code> has the longest delay time for the reason.</p>
+<p>The heatmap above shows normalized value of delay count and time of the airline carriers in total and also for all five reasons, respectively. In each column, we can see which carrier has most delay flights and longest average delay time by inspecting the color depth. For instance, <code>DL</code> has most flights delayed for aircraft reason, and <code>HA</code> has the longest average delay time. As for some specific delay reasons, the heatmap also provides similar information, e.g. <code>AA</code> may have the longest average delay time for the reason of security. Heatmap provides us an efficient tool to make decision on flight when considering more details in comprehension, which will be discussed later in our problem3.</p>
 <!-- PROBLEM TWO: Are early flights or late flights more likely to delay? Do origin and destination influence the on-time performance? -->
 </div>
 <div id="on-time-performance-accross-the-day" class="section level2" number="5.2">
@@ -143,6 +143,8 @@
 <!-- PROBLEM THREE: Specifically for NYC. If someone wants to come to NYC, which airport should s/he choose to fly to based on the origin city? -->
 <p>Columbia University is located in the City of New York, and there are three major airports near the city, which are John F. Kennedy International Airport (JFK), LaGuardia Airport (LGA) and Newark Liberty International Airport (EWR). Suppose a person wants to travel to New York, how should he/she choose which airport to fliy to? We make a graph to illustrate the differnce, facet by each state that has flight towards the three airports.</p>
 <p><img src="finalproj_files/figure-html/to%20NYC%20problem-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Here again, we apply a tool of heatmap to assist a visitor to NYC with the optimal flight choice. Note that our previous plot only provides an averaged time delay from some origin state over three airports, but not specified to different airlines, hence not enough to guide the user to all details in choosing flights. However, to include the information of airlines, there are in total four variables in our data, which may be hard to present by using scatter plot or bar plot. The heatmap uses color depth to reflect the value of averaged delay time with respect to origin state and airline. As we can see in the plot, for example, if you are a visitor from <code>KY</code> to NYC, then the best choice, with all things considered, may be the airline <code>F9</code> and the airport <code>LGA</code>.</p>
 
 </div>
 </div>
